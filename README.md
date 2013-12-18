@@ -25,6 +25,17 @@ Om is pre-alpha software. You need to clone ClojureScript from
 master and install it via `script/build`. Then clone the Om repo
 and install it locally with `lein install`.
 
+Specify dependencies as you typically would, but ensure versions match what you find in ~/.m2/respository
+
+For example:
+
+```clj
+:dependencies [[org.clojure/clojure "1.5.1"]
+               [org.clojure/clojurescript "0.0-2127"]
+               [org.clojure/core.async "0.1.267.0-0d7780-alpha"]
+               [om "0.1.0-SNAPSHOT"]]
+```
+
 For local development your [lein-cljsbuild](http://github.com/emezeske/lein-cljsbuild) settings should look something like
 this:
 
