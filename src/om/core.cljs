@@ -4,6 +4,7 @@
 
 ;; =============================================================================
 ;; React Life Cycle Protocols
+;; See http://facebook.github.io/react/docs/component-specs.html#lifecycle-methods
 
 (defprotocol IInitState
   (init-state [this owner]))
