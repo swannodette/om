@@ -70,10 +70,16 @@ should look something like this:
 Your local development markup should include something like the following:
 
 ```html
-<script src="http://fb.me/react-0.5.1.js"></script>
-<script src="out/goog/base.js" type="text/javascript"></script>
-<script src="main.js" type="text/javascript"></script>
-<script type="text/javascript">goog.require("main.core");</script>
+<html>
+  <head>
+    <script src="react-0.5.1.js"></script>
+    <script src="out/goog/base.js" type="text/javascript"></script>
+    <script src="main.js" type="text/javascript"></script>
+  </head>
+  <body>
+    <script type="text/javascript">goog.require("example");</script>
+  </body>
+</html>
 ```
 
 For production your [lein-cljsbuild](http://github.com/emezeske/lein-cljsbuild) settings should look something
