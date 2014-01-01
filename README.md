@@ -69,7 +69,7 @@ install`.
 Your `project.clj` should include something like the following:
 
 ```clj
-(defproject foo "0.1.0-SPAPSHOT"
+(defproject foo "0.1.0-SNAPSHOT"
   ...
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [org.clojure/clojurescript "0.0-2134"]
