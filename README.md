@@ -33,7 +33,7 @@ identifiers. Assuming you have [Leiningen](http://leiningen.org/)
 installed, to build an example run:
 
 ```
-lein cljsbuild once build-id
+lein cljsbuild once <build-id>
 ```
 
 Then open the corresponding `index.html` in your favorite browser.
