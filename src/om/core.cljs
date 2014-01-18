@@ -401,6 +401,7 @@
   "
   ([f cursor] (build f cursor nil))
   ([f cursor m]
+    (cursor-check cursor)
     (assert (valid? m)
       (apply str "build options contains invalid keys, only :key, "
                  ":react-key, :fn, :and opts allowed, given "
