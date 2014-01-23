@@ -47,7 +47,7 @@ For a more fleshed-out example, please see the Om implementation of
 [TodoMVC](http://todomvc.com)
 [exists here](http://github.com/swannodette/todomvc/blob/gh-pages/labs/architecture-examples/om/src/todomvc/app.cljs).
 
-## Documention
+## Documentation
 
 There is developing documentation [here](http://github.com/swannodette/om/wiki/Documentation).
 
