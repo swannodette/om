@@ -4,10 +4,11 @@
 
 (dom/gen-react-dom-fns)
 
-(defn wrap-form-element [ctor]
+(defn wrap-form-element [ctor react-name]
   (js/React.createClass
     #js
-    {:getInitialState
+    {:displayName react-name
+     :getInitialState
      (fn []
        (this-as this
          #js {:value (aget (.-props this) "value")}))
@@ -31,11 +32,11 @@
                       :onChange (aget this "onChange")
                       :children (aget (.-props this) "children")}))))}))
 
-(def input (wrap-form-element js/React.DOM.input))
+(def input (wrap-form-element js/React.DOM.input "OmInput"))
 
-(def textarea (wrap-form-element js/React.DOM.textarea))
+(def textarea (wrap-form-element js/React.DOM.textarea "OmTextarea"))
 
-(def option (wrap-form-element js/React.DOM.option))
+(def option (wrap-form-element js/React.DOM.option "OmOption"))
 
 (defn render
   "Equivalent to React.renderComponent"
