@@ -97,6 +97,7 @@ examples:
 * [omchaya](http://github.com/sgrove/omchaya)
 * [BVCA Private Equity Map](http://bvca.clustermap.trampolinesystems.com/)
 * [session](http://github.com/kovasb/session)
+* [pOModoro](http://pomodoro.trevorlandau.net/)
 
 ## Using it
 
