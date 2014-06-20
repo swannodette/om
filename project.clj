@@ -9,7 +9,7 @@
   :source-paths  ["src"]
 
   :dependencies [[org.clojure/clojure "1.5.1"]
-                 [org.clojure/clojurescript "0.0-2227" :scope "provided"]
+                 [org.clojure/clojurescript "0.0-2234" :scope "provided"]
                  [org.clojure/core.async "0.1.267.0-0d7780-alpha" :scope "provided"]
                  [com.facebook/react "0.9.0.2"]]
 
