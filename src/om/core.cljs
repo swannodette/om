@@ -627,7 +627,8 @@
                    React itself when rendering sequential things.
      :react-key  - an explicit react key
      :fn         - a function to apply to the data before invoking f.
-     :init-state - a map of initial state to pass to the component.
+     :init-state - a map of initial state to pass to the component (map from
+                   IInitState is merged onto it).
      :state      - a map of state to pass to the component, will be merged in.
      :opts       - a map of values. Can be used to pass side information down
                    the render tree.
