@@ -89,6 +89,7 @@ examples:
 * [om-autocomplete](https://github.com/arosequist/om-autocomplete),
   customizable autocompleter
 * [om-widgets](https://bitbucket.org/athieme/om-widgets)
+* [om-dev-component](https://github.com/ioRekz/om-dev-component), add dev features (e.g. state history navigation) to your component
 
 ## Applications built with Om
 
