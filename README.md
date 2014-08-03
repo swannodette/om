@@ -105,6 +105,7 @@ examples:
 * [session](http://github.com/kovasb/session)
 * [pOModoro](http://pomodoro.trevorlandau.net)
 * [Dakait](http://github.com/verma/dakait), A web-based tool to manage downloads
+* [Mega Super Mario World](http://github.com/city41/mario-review), A detailed review of the classic video game and a SNES video editor
 
 ## Using it
 
