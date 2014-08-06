@@ -146,7 +146,7 @@ Your local development markup should look something like the following:
 <html>
     <body>
        <div id="my-app"></div>
-       <script src="http://fb.me/react-0.9.0.js"></script>
+       <script src="http://fb.me/react-0.11.1.js"></script>
        <script src="out/goog/base.js" type="text/javascript"></script>
        <script src="main.js" type="text/javascript"></script>
        <script type="text/javascript">goog.require("main.core");</script>
