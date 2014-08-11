@@ -21,7 +21,7 @@ Om supports features not currently present in React:
   `:instrument`. Simplifies debugging components and generic editors.
 * Provides stream of all application state change deltas via
   `:tx-listen`. Simplifies synchronization online and offline.
-* Customizable semantics. Fine grained control how components store
+* Customizable semantics. Fine grained control over how components store
   state, even for components outside of your control. Simplifies using
   Om components outside the Om framework, debugging, and adding event
   hooks not anticipated by original component designer.
