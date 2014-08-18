@@ -608,7 +608,7 @@
                          (dataf cursor))
                        cursor)
              rkey    (if-not (nil? key)
-                       (get cursor' key)
+                       (get-in cursor' (if (sequential? key) key [key]))
                        (get m :react-key))
              shared  (or (:shared m) (get-shared *parent*))
              ctor    (get-descriptor f (:descriptor m))]
