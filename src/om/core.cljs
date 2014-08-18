@@ -586,8 +586,8 @@
          (interpose ", " (keys m))))
      (cond
        (nil? m)
-       (let [shared (or (:shared m) (get-shared *parent*))
-             ctor   (get-descriptor f (:descriptor m))]
+       (let [shared (get-shared *parent*)
+             ctor   (get-descriptor f)]
          (ctor #js {:__om_cursor cursor
                     :__om_shared shared
                     :__om_app_state *state*
