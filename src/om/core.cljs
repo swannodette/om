@@ -806,10 +806,10 @@
     (f)))
 
 (defn transact!
-  "Given a tag, a cursor, an optional list of keys ks, mutate the tree
-   at the path specified by the cursor + the optional keys by applying
-   f to the specified value in the tree. An Om re-render will be
-   triggered."
+  "Given a tag, a cursor, an optional key or list of keys (korks),
+  mutate the tree at the path specified by the cursor + the optional
+  korks by applying f to the specified value in the tree. An Om
+  re-render will be triggered."
   ([cursor f]
     (transact! cursor [] f nil))
   ([cursor korks f]
