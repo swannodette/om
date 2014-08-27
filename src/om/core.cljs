@@ -717,15 +717,15 @@
   (-unlisten! state key))
 
 (defn root
-  "Take a component constructor function f, value an immutable tree of
-   associative data structures optionally an wrapped in an IAtom
-   instance, and a map of options and installs an Om/React render
-   loop.
+  "Take a component constructor function ("f"), an immutable tree of
+  associative data structures optionally wrapped in an IAtom
+  instance ("value"), and a map of options ("options"), and installs
+  an Om/React render loop.
 
    f must return an instance that at a minimum implements IRender or
    IRenderState (it may implement other React life cycle protocols). f
-   must take at least two arguments, the root cursor and the owning pure
-   node. A cursor is just the original data wrapped in an ICursor
+   must take at least two arguments, the root cursor and the backing
+   component. A cursor is just the original data wrapped in an ICursor
    instance which maintains path information. Only one root render
    loop allowed per target element. om.core/root is idempotent, if
    called again on the same target element the previous render loop
@@ -806,10 +806,10 @@
     (f)))
 
 (defn transact!
-  "Given a tag, a cursor, an optional list of keys ks, mutate the tree
-   at the path specified by the cursor + the optional keys by applying
-   f to the specified value in the tree. An Om re-render will be
-   triggered."
+  "Given a tag, a cursor, an optional key or list of keys (korks),
+  mutate the tree at the path specified by the cursor + the optional
+  korks by applying f to the specified value in the tree. An Om
+  re-render will be triggered."
   ([cursor f]
     (transact! cursor [] f nil))
   ([cursor korks f]
