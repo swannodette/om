@@ -170,6 +170,8 @@ like this:
               :externs ["react/externs/react.js"]}}]}
 ```
 
+You can find the externs files at the [react-cljs](https://github.com/swannodette/react-cljs) project.
+
 This will generate a single file `main.js`. Your production markup
 should look something like this:
 
