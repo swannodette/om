@@ -110,6 +110,7 @@ examples:
 * [Dakait](http://github.com/verma/dakait), a web-based tool to manage
   downloads
 * [Mega Super Mario World](http://github.com/city41/mario-review), a detailed review of the classic video game and a SNES video editor
+* [Assistant](https://github.com/29decibel/assistant)
 
 ## Using it
 
