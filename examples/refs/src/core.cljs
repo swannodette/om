@@ -76,13 +76,12 @@
         (doseq [c (vals @storage)]
           (om/refresh-props! c))))))
 
+;; Resolve a key from a given cursor
 (defn resolve-id [id cursor]
   (let [state   (om/state cursor)
         cursor' (om/adapt cursor
                   (om/to-cursor (get @state id) state))]
-    (if (= id :my-ref)
-      (ref-cursor cursor' id state)
-      cursor)))
+      (ref-cursor cursor' id state)))
 
 (defn resolvable [x resolve-fn]
   (if (om/cursor? x)
