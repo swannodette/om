@@ -219,6 +219,7 @@ ClojureScript routing libraries exist that handle this problem quite
 well:
 
 * [secretary](http://github.com/gf3/secretary)
+* [silk](http://github.com/DomKM/silk)
 
 ### How do I test Om programs?
 
