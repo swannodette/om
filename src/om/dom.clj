@@ -28,7 +28,9 @@
     datalist
     dd
     del
+    details
     dfn
+    dialog
     div
     dl
     dt
@@ -52,6 +54,7 @@
     i
     iframe
     img
+    input
     ins
     kbd
     keygen
@@ -62,7 +65,6 @@
     main
     map
     mark
-    marquee
     menu
     menuitem
     meta
@@ -72,9 +74,11 @@
     object
     ol
     optgroup
+    option
     output
     p
     param
+    picture
     pre
     progress
     q
@@ -97,6 +101,7 @@
     table
     tbody
     td
+    textarea
     tfoot
     th
     thead
@@ -109,22 +114,24 @@
     var
     video
     wbr
-    
+
     ;; svg
     circle
+    defs
     ellipse
     g
     line
+    linearGradient
+    mask
     path
+    pattern
+    polygon
     polyline
+    radialGradient
     rect
+    stop
     svg
     text
-    defs
-    linearGradient
-    polygon
-    radialGradient
-    stop
     tspan])
 
 (defn ^:private gen-react-dom-inline-fn [tag]
