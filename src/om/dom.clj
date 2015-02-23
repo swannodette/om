@@ -65,6 +65,7 @@
     main
     map
     mark
+    marquee
     menu
     menuitem
     meta
