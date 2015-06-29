@@ -99,7 +99,7 @@ examples:
 
 ## Applications built with Om
 
-* [HackerSchool Community](https://github.com/hackerschool/community)
+* [Recurse Center Community](https://github.com/recursecenter/community)
 * [Framed](http://www.framed.io/)
 * [Netrunner](https://github.com/mtgred/netrunner)
 * [CircleCI](http://www.circleci.com/), source [here](https://github.com/circleci/frontend)
