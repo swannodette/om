@@ -888,7 +888,7 @@
 
 (defn ^:private valid-opts? [m]
   (every? #{:key :react-key :key-fn :fn :init-state :state
-            :opts :shared ::index :instrument :descriptor}
+            :opts :shared ::index :instrument :descriptor :decorator}
     (keys m)))
 
 (defn id [owner]
@@ -896,12 +896,16 @@
 
 (defn get-descriptor
   ([f] (get-descriptor f nil))
-  ([f descriptor]
-   (let [rdesc (or descriptor *descriptor* pure-descriptor)]
+  ([f descriptor] (get-descriptor f descriptor nil))
+  ([f descriptor decorator]
+   (let [rdeco (or decorator identity)
+         rdesc (or descriptor *descriptor* pure-descriptor)]
      (when (or (nil? (gobj/get f "om$descriptor"))
+               (not (identical? rdeco (gobj/get f "om$deco")))
                (not (identical? rdesc (gobj/get f "om$tag"))))
-       (let [factory (js/React.createFactory (js/React.createClass rdesc))]
+       (let [factory (js/React.createFactory (rdeco (js/React.createClass rdesc)))]
          (gobj/set f "om$descriptor" factory)
+         (gobj/set f "om$deco" rdeco)
          (gobj/set f "om$tag" rdesc))))
    (gobj/get f "om$descriptor")))
 
@@ -954,7 +958,7 @@
                      (not (nil? key-fn)) (key-fn cursor')
                      :else (get m :react-key))
            shared  (or (:shared m) (get-shared *parent*))
-           ctor    (get-descriptor (getf f cursor' opts) (:descriptor m))]
+           ctor    (get-descriptor (getf f cursor' opts) (:descriptor m) (:decorator m))]
        (ctor #js {:__om_cursor cursor'
                   :__om_index (::index m)
                   :__om_init_state init-state
@@ -1003,6 +1007,7 @@
      :descriptor - a JS object of React methods, will be used to
                    construct a React class per Om component function
                    encountered. defaults to pure-descriptor.
+     :decorator  - a wrapper fn for the react class
 
    Example:
 
@@ -1124,7 +1129,7 @@
        ...)
      {:message :hello}
      {:target js/document.body})"
-  ([f value {:keys [target tx-listen path instrument descriptor adapt raf] :as options}]
+  ([f value {:keys [target tx-listen path instrument descriptor decorator adapt raf] :as options}]
     (assert (ifn? f) "First argument must be a function")
     (assert (not (nil? target)) "No target specified to om.core/root")
     ;; only one root render loop per target
