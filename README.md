@@ -104,7 +104,7 @@ examples:
 * [Netrunner](https://github.com/mtgred/netrunner)
 * [CircleCI](http://www.circleci.com/), source [here](https://github.com/circleci/frontend)
 * [Prismatic](http://www.getprismatic.com/)
-* [Precursor](https://prcrsr.com)
+* [Precursor](https://precursorapp.com/)
 * [Assistant](https://github.com/29decibel/assistant)
 * [Fitsme](http://fitsmeapp.com)
 * [Goya](http://jackschaedler.github.io/goya/), pixel editor with
