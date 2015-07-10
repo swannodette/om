@@ -256,7 +256,7 @@
     (when-not (zero? (count refs))
       (aset cstate "__om_refs"
         (into #{}
-          (filter nil?
+          (remove nil?
             (map
               (fn [ref]
                 (let [ref-val   (value ref)
@@ -831,17 +831,25 @@
           (commit! cursor korks f)
           (-refresh-deps! cursor))))))
 
+(defn same-ref? [a b]
+  (and
+   (identical? (-state a) (-state b))
+   (= (-path a) (-path b))))
+
+(defn have-ref? [refs ref]
+  (some #(same-ref? ref %) refs))
+
 (defn add-ref-to-component! [c ref]
   (let [state (.-state c)
         refs  (or (aget state "__om_refs") #{})]
-    (when-not (contains? refs ref)
+    (when-not (have-ref? refs ref)
       (aset state "__om_refs" (conj refs ref)))))
 
 (defn remove-ref-from-component! [c ref]
   (let [state (.-state c)
         refs  (aget state "__om_refs")]
-    (when (contains? refs ref)
-      (aset state "__om_refs" (disj refs ref)))))
+    (when (have-ref? refs ref)
+      (aset state "__om_refs" (remove #(same-ref? ref %) refs)))))
 
 (defn observe
   "Given a component and a reference cursor have the component observe
