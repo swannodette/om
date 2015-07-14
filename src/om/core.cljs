@@ -808,6 +808,9 @@
                       [path] (fnil identity (atom {})))
                     path)]
       (specify cursor
+        IAdapt
+        (-adapt [_ other]
+          (ref-cursor other))
         ICursorDerive
         (-derive [this derived state path]
           (let [cursor' (to-cursor derived state path)]
