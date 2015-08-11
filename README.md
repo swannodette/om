@@ -119,6 +119,7 @@ examples:
   downloads
 * [Mega Super Mario World](http://github.com/city41/mario-review), a detailed review of the classic video game and a SNES video editor
 * [Time for Coffee!](http://www.timeforcoffee.ch), a handy website to display the next departures at public transport stops in Switzerland
+* [Omingard](https://omingard.5apps.com), a Solitaire-like card game. Making-of: [My Way into Clojure](http://www.railslove.com/stories/my-way-into-clojure-building-a-card-game-with-om-part-1).
 
 ## Using it
 
