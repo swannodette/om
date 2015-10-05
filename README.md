@@ -119,6 +119,7 @@ examples:
   downloads
 * [Mega Super Mario World](http://github.com/city41/mario-review), a detailed review of the classic video game and a SNES video editor
 * [Time for Coffee!](http://www.timeforcoffee.ch), a handy website to display the next departures at public transport stops in Switzerland
+* [Project FiFo](https://blog.project-fifo.net/the-stack-we-choose-erlang-smartos-clojure/), a SmartOS cloud orchestration platform
 
 ## Using it
 
