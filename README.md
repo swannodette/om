@@ -119,7 +119,7 @@ examples:
   downloads
 * [Mega Super Mario World](http://github.com/city41/mario-review), a detailed review of the classic video game and a SNES video editor
 * [Time for Coffee!](http://www.timeforcoffee.ch), a handy website to display the next departures at public transport stops in Switzerland
-
+* [Horizon Alpha](https://github.com/BertrandDechoux/horizon-alpha), a quick Hack and slash game using the Noob universe
 ## Using it
 
 The current version depends on React 0.13.3.
