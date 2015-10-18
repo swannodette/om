@@ -308,9 +308,9 @@
   (if (satisfies? ILocalState component)
     (-set-state! component new-state)
     (gobj/set (.-state component) "omcljs$pendingState" new-state))
-  (if-let [r (get-reconciler component)]
-    (p/queue! r [component])
-    (.forceUpdate component)))
+  (when-let [r (get-reconciler component)]
+    (p/queue! r [component]))
+  (.forceUpdate component))
 
 (defn get-state
   "Get a component's local state. May provide a single key or a sequential
