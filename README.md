@@ -122,6 +122,7 @@ examples:
 * [Time for Coffee!](http://www.timeforcoffee.ch), a handy website to display the next departures at public transport stops in Switzerland
 * [Omingard](https://omingard.5apps.com), a Solitaire-like card game. Making-of: [My Way into Clojure](http://www.railslove.com/stories/my-way-into-clojure-building-a-card-game-with-om-part-1).
 * [Horizon Alpha](https://github.com/BertrandDechoux/horizon-alpha), a quick Hack and slash game using the Noob universe
+* [Solari Architects](http://solariarchitects.com/), portfolio for architecture firm.  
 
 ## Using it
 
