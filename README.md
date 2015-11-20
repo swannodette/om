@@ -1,10 +1,10 @@
 # Om
 
-A [ClojureScript](http://github.com/clojure/clojurescript) interface
+A [ClojureScript](https://github.com/clojure/clojurescript) interface
 to [Facebook's React](http://facebook.github.io/react/).
 
 Om allows users to represent their UIs simply as
-[EDN](http://github.com/edn-format/edn). Because ClojureScript data is
+[EDN](https://github.com/edn-format/edn). Because ClojureScript data is
 immutable data, Om can always rapidly re-render the UI from the
 root. Thus Om UIs are out of the box snapshotable and undoable and
 these operations have no implementation complexity and little
@@ -32,9 +32,9 @@ Om supports features not currently present in React:
 
 There is an in-depth tutorial that will introduce you to the core
 concepts of Om
-[here](http://github.com/swannodette/om/wiki/Basic-Tutorial) and a
+[here](https://github.com/omcljs/om/wiki/Basic-Tutorial) and a
 real-world integration example
-[here](http://github.com/swannodette/om/wiki/Intermediate-Tutorial). The
+[here](https://github.com/omcljs/om/wiki/Intermediate-Tutorial). The
 community maintained [om-cookbook](https://github.com/omcljs/om-cookbook)
 covers many common idioms and patterns.
 
@@ -72,10 +72,10 @@ For a more fleshed-out example, please see the Om implementation of
 
 ## Documentation
 
-There is documentation [here](http://github.com/swannodette/om/wiki/Documentation).
+There is documentation [here](https://github.com/omcljs/om/wiki/Documentation).
 
 There is also a
-[conceptual overview](http://github.com/swannodette/om/wiki/Conceptual-overview)
+[conceptual overview](https://github.com/omcljs/om/wiki/Conceptual-overview)
 that we recommend reading as there are some design choices in Om that
 make it quite different from other client side solutions and even
 React itself.
@@ -86,24 +86,24 @@ Om emphasizes building modular and adaptable components. Some
 examples:
 
 * [om-bootstrap](https://github.com/racehub/om-bootstrap), Bootstrap 3 Om Components
-* [ankha](http://github.com/noprompt/ankha), an EDN inspector view
+* [ankha](https://github.com/noprompt/ankha), an EDN inspector view
 * [om-draggable](https://github.com/sgrove/om-draggable), generic
   draggable
 * [om-autocomplete](https://github.com/arosequist/om-autocomplete),
   customizable autocompleter
-* [ff-om-draggable](https://github.com/neo/ff-om-draggable)
+* [ff-om-draggable](https://github.com/edgecase/ff-om-draggable)
 * [om-widgets](https://bitbucket.org/athieme/om-widgets)
 * [om-dev-component](https://github.com/ioRekz/om-dev-component), add dev features (e.g. state history navigation) to your component
-* [om-sync](http://github.com/swannodette/om-sync), keep client and
+* [om-sync](https://github.com/swannodette/om-sync), keep client and
   server in sync (experimental)
 
 ## Applications built with Om
 
 * [Project FiFo](https://blog.project-fifo.net/the-stack-we-choose-erlang-smartos-clojure/), a SmartOS cloud orchestration platform
-* [Recurse Center Community](https://github.com/hackerschool/community)
-* [Framed](http://www.framed.io/)
+* [Recurse Center Community](https://github.com/recursecenter/community)
+* [Framed](http://framed.io/)
 * [Netrunner](https://github.com/mtgred/netrunner)
-* [CircleCI](http://www.circleci.com/), source [here](https://github.com/circleci/frontend)
+* [CircleCI](https://circleci.com/), source [here](https://github.com/circleci/frontend)
 * [Prismatic](http://www.getprismatic.com/)
 * [Precursor](https://precursorapp.com)
 * [Assistant](https://github.com/29decibel/assistant)
@@ -112,13 +112,13 @@ examples:
   undo/redo and visual history
 * [Coils](https://github.com/zubairq/coils), a Clojure web framework
 * [wordsmith](http://wordsmith.variadic.me), a markdown editor
-* [omchaya](http://github.com/sgrove/omchaya)
+* [omchaya](https://github.com/sgrove/omchaya)
 * [BVCA Private Equity Map](http://bvca.clustermap.trampolinesystems.com/)
-* [session](http://github.com/kovasb/session)
+* [session](https://github.com/kovasb/session)
 * [pOModoro](http://pomodoro.trevorlandau.net)
-* [Dakait](http://github.com/verma/dakait), a web-based tool to manage
+* [Dakait](https://github.com/verma/dakait), a web-based tool to manage
   downloads
-* [Mega Super Mario World](http://github.com/city41/mario-review), a detailed review of the classic video game and a SNES video editor
+* [Mega Super Mario World](https://github.com/city41/mario-review), a detailed review of the classic video game and a SNES video editor
 * [Time for Coffee!](http://www.timeforcoffee.ch), a handy website to display the next departures at public transport stops in Switzerland
 * [Omingard](https://omingard.5apps.com), a Solitaire-like card game. Making-of: [My Way into Clojure](http://www.railslove.com/stories/my-way-into-clojure-building-a-card-game-with-om-part-1).
 * [Horizon Alpha](https://github.com/BertrandDechoux/horizon-alpha), a quick Hack and slash game using the Noob universe
@@ -159,7 +159,7 @@ with Maven's exclusions feature:
 ### Build configuration
 
 For local development your
-[lein-cljsbuild](http://github.com/emezeske/lein-cljsbuild) settings
+[lein-cljsbuild](https://github.com/emezeske/lein-cljsbuild) settings
 should look something like this:
 
 ```clojure
@@ -185,7 +185,7 @@ Your markup should look something like the following:
 </html>
 ```
 
-For production your [lein-cljsbuild](http://github.com/emezeske/lein-cljsbuild) settings should look something
+For production your [lein-cljsbuild](https://github.com/emezeske/lein-cljsbuild) settings should look something
 like this:
 
 ```clojure
@@ -213,8 +213,8 @@ Om is not opinionated about HTML syntax, third parties can provide the
 preferred flavors over the `React.DOM` api. Alternative syntaxes will
 be listed here:
 
-* [sablono](http://github.com/r0man/sablono), Hiccup-style
-* [kioo](http://github.com/ckirkendall/kioo), Enlive-style
+* [sablono](https://github.com/r0man/sablono), Hiccup-style
+* [kioo](https://github.com/ckirkendall/kioo), Enlive-style
 
 ### Does Om provide routing?
 
@@ -222,15 +222,15 @@ Om does not ship with a router and is unlikely to. However
 ClojureScript routing libraries exist that handle this problem quite
 well:
 
-* [secretary](http://github.com/gf3/secretary)
-* [silk](http://github.com/DomKM/silk)
-* [bidi](http://github.com/juxt/bidi)
+* [secretary](https://github.com/gf3/secretary)
+* [silk](https://github.com/DomKM/silk)
+* [bidi](https://github.com/juxt/bidi)
 
 ### How do I test Om programs?
 
-* Sean Grove's [omchaya](http://github.com/sgrove/omchaya) is a good
+* Sean Grove's [omchaya](https://github.com/sgrove/omchaya) is a good
   starting point for understanding common testing patterns
-* There are some notes [here](http://github.com/swannodette/om/wiki/Testing)
+* There are some notes [here](https://github.com/omcljs/om/wiki/Testing)
 
 ## References
 
