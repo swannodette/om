@@ -106,7 +106,7 @@
      ~'shouldComponentUpdate
      ([this# next-props# next-state#]
        (or (not= (om.next/props this#)
-                 (goog.object/get next-props# "omcljs$value"))
+                 (~'.-props (goog.object/get next-props# "omcljs$value")))
            (and (.. this# ~'-state)
                 (not= (goog.object/get (. this# ~'-state) "omcljs$state")
                       (goog.object/get next-state# "omcljs$state")))))
