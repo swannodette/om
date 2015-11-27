@@ -693,6 +693,13 @@
   [{:keys [ast] :as env} _ _]
   {:remote (assoc ast :query-root true)})
 
+(defmethod precise-read :other/key
+  [{:keys [ast] :as env} _ _]
+  {:remote ast})
+
+(defn precise-mutate [{:keys [ast] :as env} _ _]
+  {:remote true })
+
 (deftest test-rewrite
   (is (= ((om/rewrite {:real/key [:fake/key :real/key]})
            {:real/key 1})
@@ -723,6 +730,28 @@
             (p {:state (atom {})}
               '[{:fake/key [{:real/key ...}]}] :remote))]
     (is (= [{:real/key '...}] (:query m)))))
+
+(deftest test-process-roots-keeps-top-rooted-key
+  (let [p (om/parser {:read precise-read :mutate precise-mutate})
+        m (om/process-roots
+            (p {:state (atom {})}
+               '[{:other/key [:x]}] :remote))]
+    (is (= '[{:other/key [:x]}] (:query m)))))
+
+(deftest test-process-roots-keeps-keys-following-re-root
+  (let [p (om/parser {:read precise-read :mutate precise-mutate})
+        m (om/process-roots
+            (p {:state (atom {})}
+               '[{:fake/key [{:real/key ...}]} :other/key] :remote))]
+    (is (= '[{:real/key ...} :other/key] (:query m)))))
+
+(deftest test-process-roots-keeps-mutations
+  (let [p (om/parser {:read precise-read :mutate precise-mutate})
+        m (om/process-roots
+            (p {:state (atom {})}
+               '[(app/f) {:fake/key [{:real/key ...}]} (app/g)] :remote))]
+    (is (= '[(app/f) {:real/key ...} (app/g)] (:query m)))))
+
 
 ;; -----------------------------------------------------------------------------
 ;; User Bugs
