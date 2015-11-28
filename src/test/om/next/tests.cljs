@@ -885,3 +885,13 @@
     (is (every? #(contains? % [:settings 0]) (:items ui)))
     (is (= (parser {:state state} (om/get-query LinkList) :remote)
            [{:items [:id :title]}]))))
+
+(deftest db->tree-graph-loops
+  (let [sam {:db/id 1 :person/name "Sam" :person/mate [:people/by-id 2]}
+        jenny {:db/id 2 :person/name "Jenny" :other-thing [:people/by-id 1]}
+        app-state {:widget/people [[:people/by-id 1] [:people/by-id 2]]
+                   :people/by-id  {1 sam 2 jenny}
+                   }]
+    (is (= {[:people/by-id 1] {:person/name "Sam", :person/mate {:person/name "Jenny" :person/mate [:people/by-id 1]}}}
+           (om/db->tree '[{[:people/by-id 1] [:person/name {:person/mate ...}]}] app-state app-state)))
+    ))
