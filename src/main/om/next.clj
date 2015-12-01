@@ -50,36 +50,41 @@
            (cljs.core/js-obj "omcljs$state" ret#))))
     'componentWillReceiveProps
     (fn [[name [this next-props :as args] & body]]
-      `(~name ~args
-         (let [~next-props (om.next/-next-props ~next-props ~this)]
+      `(~name [this# next-props#]
+         (let [~this this#
+               ~next-props (om.next/-next-props next-props# this#)]
            ~@body)))
     'componentWillUpdate
     (fn [[name [this next-props next-state :as args] & body]]
-      `(~name ~args
-         (let [~next-props (om.next/-next-props ~next-props ~this)
-               ~next-state (goog.object/get ~next-state "omcljs$pendingState")
-               ret# (do ~@body)]
+      `(~name [this# next-props# next-state#]
+         (let [~this       this#
+               ~next-props (om.next/-next-props next-props# this#)
+               ~next-state (goog.object/get next-state# "omcljs$pendingState")
+               ret#        (do ~@body)]
            (om.next/merge-pending-props! ~this)
            (om.next/merge-pending-state! ~this)
            ret#)))
     'componentDidUpdate
     (fn [[name [this prev-props prev-state :as args] & body]]
-      `(~name ~args
-         (let [~prev-props (om.next/-prev-props ~prev-props ~this)
-               ~prev-state (goog.object/get ~prev-state "omcljs$previousState")]
+      `(~name [this# prev-props# prev-state#]
+         (let [~this       this#
+               ~prev-props (om.next/-prev-props prev-props# this#)
+               ~prev-state (goog.object/get prev-state# "omcljs$previousState")]
            ~@body
            (om.next/clear-prev-props! ~this))))
     'componentWillMount
     (fn [[name [this :as args] & body]]
-      `(~name ~args
-         (let [indexer# (get-in (om.next/get-reconciler ~this) [:config :indexer])]
+      `(~name [this#]
+         (let [~this    this#
+               indexer# (get-in (om.next/get-reconciler this#) [:config :indexer])]
            (when-not (nil? indexer#)
              (om.next.protocols/index-component! indexer# ~this)))
          ~@body))
     'componentWillUnmount
     (fn [[name [this :as args] & body]]
-      `(~name ~args
-         (let [r#       (om.next/get-reconciler ~this)
+      `(~name [this#]
+         (let [~this    this#
+               r#       (om.next/get-reconciler this#)
                cfg#     (:config r#)
                st#      (:state cfg#)
                indexer# (:indexer cfg#)]
@@ -90,13 +95,14 @@
          ~@body))
     'render
     (fn [[name [this :as args] & body]]
-      `(~name ~args
-         (binding [om.next/*reconciler* (om.next/get-reconciler ~this)
-                   om.next/*depth*      (inc (om.next/depth ~this))
-                   om.next/*shared*     (om.next/shared ~this)
-                   om.next/*instrument* (om.next/instrument ~this)
-                   om.next/*parent*     ~this]
-           ~@body)))}
+      `(~name [this#]
+         (let [~this this#]
+           (binding [om.next/*reconciler* (om.next/get-reconciler this#)
+                     om.next/*depth*      (inc (om.next/depth this#))
+                     om.next/*shared*     (om.next/shared this#)
+                     om.next/*instrument* (om.next/instrument this#)
+                     om.next/*parent*     this#]
+            ~@body))))}
    :defaults
    `{~'isMounted
      ([this#]

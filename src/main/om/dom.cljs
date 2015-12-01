@@ -1,5 +1,5 @@
 (ns om.dom
-  (:refer-clojure :exclude [map meta time])
+  (:refer-clojure :exclude [map meta time select])
   (:require-macros [om.dom :as dom])
   (:require [cljsjs.react]
             [cljsjs.react.dom]
@@ -45,6 +45,8 @@
 (def textarea (wrap-form-element js/React.DOM.textarea "textarea"))
 
 (def option (wrap-form-element js/React.DOM.option "option"))
+
+(def select (wrap-form-element js/React.DOM.select "select"))
 
 (defn render
   "Equivalent to React.render"

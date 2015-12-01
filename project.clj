@@ -18,7 +18,7 @@
                  [com.cognitect/transit-cljs "0.8.232"]
 
                  [org.clojure/core.async "0.2.371" :scope "test"]
-                 [figwheel-sidecar "0.5.0-SNAPSHOT" :scope "test"]
+                 [figwheel-sidecar "0.5.0" :scope "test"]
                  [devcards "0.2.0-8" :scope "test"]]
 
   :plugins [[lein-cljsbuild "1.1.1"]]

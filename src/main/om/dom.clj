@@ -85,7 +85,6 @@
     samp
     script
     section
-    select
     small
     source
     span

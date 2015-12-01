@@ -1004,6 +1004,13 @@
       (js/Object.create (. class -prototype))
       class)))
 
+(defn ^boolean ident?
+  "Returns true if x is an ident."
+  [x]
+  (and (vector? x)
+       (== 2 (count x))
+       (keyword? (nth x 0))))
+
 (defn- normalize* [query data refs errs]
   (cond
     (= '[*] query) data
@@ -1026,12 +1033,15 @@
         (let [node (first q)]
           (if (join? node)
             (let [[k sel] (join-entry node)
-                  sel     (if (= '... sel)
+                  recursive? (= '... sel)
+                  sel     (if recursive?
                             query
                             sel)
                   class   (to-class (-> sel meta :component))
                   v       (get data k)]
               (cond
+                ;; graph loop: db->tree leaves ident in place
+                (and recursive? (ident? v)) (recur (next q) ret)
                 ;; normalize one
                 (map? v)
                 (let [x (normalize* sel v refs errs)]
@@ -1098,13 +1108,6 @@
   (let [{refs true rest false} (group-by #(vector? (first %)) res)]
     [(into {} refs) (into {} rest)]))
 
-(defn ^boolean ident?
-  "Returns true if x is an ident."
-  [x]
-  (and (vector? x)
-       (== 2 (count x))
-       (keyword? (nth x 0))))
-
 ;; TODO: easy to optimize
 
 (defn db->tree
@@ -1112,8 +1115,10 @@
    application state in the default database format, return the tree where all
    ident links have been replaced with their original node values."
   ([query data refs]
-    (db->tree query data refs identity))
+   (db->tree query data refs identity {}))
   ([query data refs map-ident]
+   (db->tree query data refs map-ident {}))
+  ([query data refs map-ident idents-seen]
    {:pre [(map? refs)]}
     ;; support taking ident for data param
    (let [data (cond-> data (ident? data) (->> map-ident (get-in refs)))]
@@ -1122,7 +1127,7 @@
        (let [step (fn [ident]
                     (let [ident' (get-in refs (map-ident ident))
                           query' (cond-> query (map? query) (get (first ident)))] ;; UNION
-                      (db->tree query' ident' refs map-ident)))]
+                      (db->tree query' ident' refs map-ident idents-seen)))]
          (into [] (map step) data))
        ;; map case
        (if (= '[*] query)
@@ -1130,29 +1135,37 @@
          (let [{props false joins true} (group-by #(or (join? %) (ident? %)) query)]
            (loop [joins (seq joins) ret {}]
              (if-not (nil? joins)
-               (let [join      (first joins)
-                     join      (cond-> join (ident? join) (hash-map '[*]))
-                     [key sel] (join-entry join)
-                     sel       (if (= '... sel)
-                                 query
-                                 sel)
-                     v         (if (ident? key)
-                                 (if (= '_ (second key))
-                                   (get refs (first key))
-                                   (get-in refs (map-ident key)))
-                                 (get data key))
-                     key       (cond-> key
-                                 (and (ident? key) (= '_ (second key)))
-                                 first)]
-                 (if-not (ident? v)
-                   (recur (next joins)
-                     (assoc ret
-                       key (db->tree sel v refs map-ident)))
-                   (recur (next joins)
-                     (assoc ret
-                       key (db->tree sel
-                             (get-in refs (map-ident v)) refs map-ident)))))
-               (merge (select-keys data props) ret)))))))))
+               (let [join        (first joins)
+                     join        (cond-> join (ident? join) (hash-map '[*]))
+                     [key sel]   (join-entry join)
+                     recurse?    (= '... sel)
+                     sel         (if recurse?
+                                   query
+                                   sel)
+                     v           (if (ident? key)
+                                   (if (= '_ (second key))
+                                     (get refs (first key))
+                                     (get-in refs (map-ident key)))
+                                   (get data key))
+                     key         (cond-> key
+                                   (and (ident? key) (= '_ (second key)))
+                                   first)
+                     v           (if (ident? v) (map-ident v) v)
+                     graph-loop? (and recurse? (contains? (set (get idents-seen key)) v))
+                     idents-seen (if recurse? (-> idents-seen
+                                                  (update-in [key] (fnil conj #{}) v)
+                                                  (assoc-in [:last-ident key] v)) idents-seen)]
+                 (cond
+                   graph-loop? (recur (next joins) ret)
+                   (nil? v)    (recur (next joins) ret)
+                   :else       (recur (next joins)
+                                (assoc ret key (db->tree sel v refs map-ident idents-seen)))))
+               (if-let [looped-key (some (fn [[k identset]]
+                                           (if (contains? identset (get data k))
+                                             (get-in idents-seen [:last-ident k])
+                                             nil)) (dissoc idents-seen :last-ident))]
+                 looped-key
+                 (merge (select-keys data props) ret))))))))))
 
 ;; =============================================================================
 ;; Reconciler
