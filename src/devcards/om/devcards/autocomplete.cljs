@@ -11,7 +11,7 @@
 (enable-console-print!)
 
 (def base-url
-  "http://en.wikipedia.org/w/api.php?action=opensearch&format=json&search=")
+  "https://en.wikipedia.org/w/api.php?action=opensearch&format=json&search=")
 
 (defn jsonp
   ([uri] (jsonp (chan) uri))
