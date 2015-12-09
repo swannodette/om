@@ -213,6 +213,10 @@
     {:value v}
     {:remote true}))
 
+(defmethod read :nil/allowed
+  [{:keys [state]} k params]
+  {:value (get state k)})
+
 (defmethod read :woz/noz
   [{:keys [state]} k params]
   (if-let [v (get @state k)]
@@ -248,6 +252,10 @@
     (is (= (p {} [:baz/woz] :remote) [:baz/woz]))
     (is (= (p {:state st} [:foo/bar] :remote) []))
     (is (= (p {:state st} [:foo/bar :baz/woz] :remote) [:baz/woz]))))
+
+(deftest test-parsing-nil-value
+  (let [st (atom {:nil/allowed nil})]
+    (is (= (p {:state st} [:nil/allowed]) {:nil/allowed nil}))))
 
 (deftest test-value-and-remote
   (let [st (atom {:woz/noz 1})]
