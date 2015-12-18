@@ -1256,15 +1256,13 @@
   one common parent (their common branching point).
   "
   [join result-roots path]
-  (letfn [(query-root? [join] (true? (-> join meta :query-root)))]
-    (if (join? join)
-      (if (query-root? join)
-        (conj result-roots [join path])
-        (mapcat
-          #(move-roots % result-roots
-            (conj path (join-key join)))
-          (join-value join)))
-      result-roots)))
+  (letfn [(query-root? [join] (true? (-> join meta :query-root)))
+          (find-roots [expr] (move-roots expr result-roots (conj path (join-key join))))]
+    (cond
+      (not (join? join)) result-roots
+      (query-root? join) (conj result-roots [join path])
+      (union? join) (mapcat find-roots (apply concat (vals (join-value join))))
+      :else (mapcat find-roots (join-value join)))))
 
 (defn- merge-joins
   "Searches a query for duplicate joins and deep-merges them into a new query."

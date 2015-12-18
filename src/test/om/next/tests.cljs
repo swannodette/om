@@ -906,10 +906,22 @@
         full-query [{:ui-key server-query}]
         response {:dashboard {:url "http://images.com/x.gif"}}
         full-response {:ui-key response}
-        {:keys [rewrite query]} (om/process-roots full-query)
-        ]
+        {:keys [rewrite query]} (om/process-roots full-query)]
     (is (= server-query query))
     (is (= full-response (rewrite response)))))
+
+(deftest test-process-roots-promotes-from-union-subqueries
+  (let [q [{:app/pages
+            {:page/home [(with-meta {:user/rooms [:id]} {:query-root true})]
+             :page/about [(with-meta {:app/things [:id]} {:query-root true})]}}]
+        expected [{:user/rooms [:id]}
+                  {:app/things [:id]}]
+        response {:user/rooms [{:id :foo} {:id :bar}]
+                  :app/things [{:id 17}]}
+        expected-response {:app/pages response}
+        {:keys [query rewrite]} (om/process-roots q)]
+    (is (= expected query))
+    (is (= expected-response (rewrite response)))))
 
 ;; -----------------------------------------------------------------------------
 ;; User Bugs
