@@ -368,6 +368,12 @@
     {:value v}
     {:remote true}))
 
+(defmethod read :location
+  [{:keys [state]} k params]
+  (if-let [v (get @state k)]
+    {:value v}
+    {:remote true}))
+
 (defmethod read :woz/noz
   [{:keys [state]} k params]
   (if-let [v (get @state k)]
@@ -403,6 +409,16 @@
     (is (= (p {} [:baz/woz] :remote) [:baz/woz]))
     (is (= (p {:state st} [:foo/bar] :remote) []))
     (is (= (p {:state st} [:foo/bar :baz/woz] :remote) [:baz/woz]))))
+
+(defrecord Point [lat lon])
+
+(deftest test-parse-defrecord
+  (let [location (->Point 1 2)
+        state (atom {:location location})
+        result (p {:state state} [:location])]
+    (is (= result {:location location}))
+    (is (instance? Point (:location result)))
+    (is (= (meta result) {:om-path []}))))
 
 (deftest test-value-and-remote
   (let [st (atom {:woz/noz 1})]

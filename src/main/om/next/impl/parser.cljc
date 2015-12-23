@@ -160,9 +160,11 @@
   ([x path]
    (path-meta x path nil))
   ([x path query]
-   (let [x' (cond->> x
-              (map? x) (into {} (map (fn [[k v]] [k (path-meta v (conj path k))])))
-              (vector? x) (into [] (map-indexed #(path-meta %2 (conj path %1)))))]
+   (let [x' (cond
+              (record? x) x
+              (map? x) (into {} (map (fn [[k v]] [k (path-meta v (conj path k))]) x))
+              (vector? x) (into [] (map-indexed #(path-meta %2 (conj path %1)) x))
+              :else x)]
      (cond-> x'
        #?(:clj  (instance? clojure.lang.IObj x')
           :cljs (satisfies? IWithMeta x'))
