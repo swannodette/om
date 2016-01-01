@@ -241,6 +241,6 @@ well:
 
 ## Copyright and license
 
-Copyright © 2013-2015 David Nolen
+Copyright © 2013-2016 David Nolen
 
 Licensed under the EPL (see the file epl.html).
