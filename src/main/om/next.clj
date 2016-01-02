@@ -126,7 +126,11 @@
        (om.next/clear-prev-props! this#))
      ~'componentWillMount
      ([this#]
-       (let [indexer# (get-in (om.next/get-reconciler this#) [:config :indexer])]
+       (let [reconciler# (om.next/get-reconciler this#)
+             mock-root?# (-> (om.next/props this#) meta :om.next/mock-root?)
+             indexer#    (get-in reconciler [:config :indexer])]
+         (when mock-root?#
+           (swap! (:state reconciler#) assoc :root this#))
          (when-not (nil? indexer#)
            (om.next.protocols/index-component! indexer# this#))))
      ~'componentWillUnmount

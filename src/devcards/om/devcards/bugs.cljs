@@ -1,6 +1,6 @@
 (ns om.devcards.bugs
-  (:require-macros [devcards.core :refer [defcard deftest]])
   (:require [cljs.test :refer-macros [is async]]
+            [devcards.core :refer-macros [defcard deftest]]
             [om.next :as om :refer-macros [defui]]
             [om.dom :as dom]))
 
@@ -103,13 +103,55 @@
                          :parser (om/parser {:read read})}))
 
 (defcard test-om-552
-  "Test that componentWillUpdate receives updated next-props"
-  (om/mock-root rec Root))
+         "Test that componentWillUpdate receives updated next-props"
+         (om/mock-root rec Root))
+
+(def tempid-550 (om/tempid))
+
+(defui Item-550
+       static om/Ident
+       (ident [_ {:keys [db/id]}] [:by-id id])
+       static om/IQuery
+       (query [_] [:label :db/id])
+       Object
+       (render [this]
+               (let [{:keys [label]} (om/props this)]
+                 (dom/div nil label))))
+
+(def item-view-550 (om/factory Item-550 {:keyfn :db/id}))
+
+(defui App-550
+       static om/IQuery
+       (query [_] [{:app/items (om/get-query Item-550)}])
+       Object
+       (render [this]
+               (let [{items :app/items} (om/props this)]
+                 (apply dom/div nil
+                        (dom/button #js {:onClick #(om/transact! this '[(item/consolidate) :app/items])} "consolidate")
+                        "Items"
+                        (map item-view-550 items)))))
+
+(defn local-read-550 [{:keys [state query]} key params]
+  (let [value (get @state key)]
+    (if value
+      {:value (om/db->tree query value @state)})))
+(defn local-mutate-550 [_ _ _] {:remote true})
+(def parser-550 (om/parser {:read local-read-550 :mutate local-mutate-550}))
+
+(def reconciler-550
+  (om/reconciler {:state  {:app/items [{:db/id tempid-550
+                                        :label "sample"}]}
+                  :parser parser-550
+                  :id-key :db/id
+                  :send   (fn [_ cb]
+                            (cb {'item/consolidate {:tempids {[:by-id tempid-550] [:by-id "123"]}}}))}))
+
+(defcard om-550
+         "Test that mock-root can properly find root query"
+         (om/mock-root reconciler-550 App-550))
 
 (comment
 
   (require '[cljs.pprint :as pprint])
 
-  (pprint/pprint @(om/get-indexer reconciler))
-
-  )
+  (pprint/pprint @(om/get-indexer reconciler)))
