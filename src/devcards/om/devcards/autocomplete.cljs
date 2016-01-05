@@ -1,8 +1,8 @@
 (ns om.devcards.autocomplete
-  (:require-macros [devcards.core :refer [defcard deftest]]
-                   [cljs.core.async.macros :refer [go]])
+  (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [cljs.core.async :as async :refer [<! >! put! chan]]
             [clojure.string :as string]
+            [devcards.core :refer-macros [defcard deftest]]
             [om.next :as om :refer-macros [defui]]
             [om.dom :as dom])
   (:import [goog Uri]

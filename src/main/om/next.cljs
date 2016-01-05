@@ -1425,7 +1425,7 @@
                                 *instrument* (:instrument config)]
                         (let [c (cond
                                   (not (nil? target)) ((:root-render config) (rctor data) target)
-                                  (nil? @ret) (rctor data)
+                                  (nil? @ret) (rctor (with-meta data {:om.next/mock-root? true}))
                                   :else (when-let [c' @ret]
                                           (when (mounted? c')
                                             (.forceUpdate c' data))))]
