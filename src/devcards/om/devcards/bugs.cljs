@@ -216,6 +216,18 @@
     (fn [_ node]
       (om/add-root! om-543-reconciler UnionTree node))))
 
+(defui OM-569
+  Object
+  (displayName [this]
+    "Insert name")
+  (render [this]
+    (println (.. this -constructor -displayName))))
+
+(defcard om-569
+  "Render a component with `displayName`"
+  (dom-node
+    (fn [_ node]
+      (om/add-root! (om/reconciler {:state {}}) OM-569 node))))
 
 (comment
 

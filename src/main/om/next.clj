@@ -28,7 +28,8 @@
         {:dt dt' :statics statics}))))
 
 (def lifecycle-sigs
-  '{initLocalState [this]
+  '{displayName [this]
+    initLocalState [this]
     componentWillReceiveProps [this next-props]
     componentWillUpdate [this next-props next-state]
     componentDidUpdate [this prev-props prev-state]
@@ -43,7 +44,11 @@
 
 (def reshape-map
   {:reshape
-   {'initLocalState
+   {'displayName
+    (fn [[name [this :as args] & body]]
+      `(~name ~args
+         ~@body))
+    'initLocalState
     (fn [[name [this :as args] & body]]
       `(~name ~args
          (let [ret# (do ~@body)]
@@ -172,6 +177,8 @@
                    name)
            ctor  `(defn ~(with-meta name {:jsdoc ["@constructor"]}) []
                     (this-as this#
+                      (when-not (nil? (.-displayName this#))
+                        (set! (.. this# -constructor -displayName) (.displayName this#)))
                       (.apply js/React.Component this# (js-arguments))
                       (if-not (nil? (.-initLocalState this#))
                         (set! (.-state this#) (.initLocalState this#))
