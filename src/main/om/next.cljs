@@ -749,21 +749,32 @@
      #js {:omcljs$value next-props}
      #js {:omcljs$state next-state})))
 
-(defn class-path [c]
-  "Return the component class path associated with a component."
-  {:pre [(component? c)]}
+(defn- class-path* [c]
+  "Return the component class path associated with a component. Might contain
+  duplicate entries (e.g. when the component recurses)"
   (loop [c c ret (list (type c))]
     (if-let [p (parent c)]
       (if (iquery? p)
         (recur p (cons (type p) ret))
         (recur p ret))
-      (let [seen (atom #{})]
-        (take-while
-          (fn [x]
-            (when-not (contains? @seen x)
-              (swap! seen conj x)
-              x))
-          ret)))))
+      ret)))
+
+(defn class-path [c]
+  "Return the component class path associated with a component."
+  {:pre [(component? c)]}
+  (let [seen (atom #{})]
+    (take-while
+      (fn [x]
+        (when-not (contains? @seen x)
+          (swap! seen conj x)
+          x))
+      (class-path* c))))
+
+(defn- ^boolean recursive-class-path? [c]
+  "Returns true if a component's classpath is recursive"
+  {:pre [(component? c)]}
+  (not (apply distinct? (class-path* c))))
+
 
 (defn subquery
   "Given a class or mounted component x and a ref to an instantiated component
@@ -1087,18 +1098,22 @@
            cp    (class-path component)
            qs    (get-in @(-> component get-reconciler get-indexer)
                    [:class-path->query cp])]
-       (if-not (empty? qs)
-         ;; handle case where child appears multiple times at same class-path
-         ;; but with different queries
-         (let [q (first (filter #(= path' (-> % zip/root (focus->path path'))) qs))]
-           (if-not (nil? q)
-             (replace q query)
-             (throw
-               (ex-info (str "No queries exist for component path " cp " or data path " path')
-                 {:type :om.next/no-queries}))))
-         (throw
-           (ex-info (str "No queries exist for component path " cp)
-             {:type :om.next/no-queries})))))))
+       (if (recursive-class-path? component)
+         ;; if we arrived here means pathopt is false, so just return the root
+         ;; query for the recursion case
+         (get-query (first cp))
+         (if-not (empty? qs)
+           ;; handle case where child appears multiple times at same class-path
+           ;; but with different queries
+           (let [q (first (filter #(= path' (-> % zip/root (focus->path path'))) qs))]
+             (if-not (nil? q)
+               (replace q query)
+               (throw
+                 (ex-info (str "No queries exist for component path " cp " or data path " path')
+                   {:type :om.next/no-queries}))))
+           (throw
+             (ex-info (str "No queries exist for component path " cp)
+               {:type :om.next/no-queries}))))))))
 
 ;; for advanced optimizations
 (defn to-class [class]
