@@ -96,7 +96,7 @@ examples:
 * [om-dev-component](https://github.com/ioRekz/om-dev-component), add dev features (e.g. state history navigation) to your component
 * [om-sync](http://github.com/swannodette/om-sync), keep client and
   server in sync (experimental)
-
+* [om-flash-bootstrap](https://github.com/danielsz/om-flash-bootstrap) Flash messages in the UI (success/alert/warn/danger).
 ## Applications built with Om
 
 * [Project FiFo](https://blog.project-fifo.net/the-stack-we-choose-erlang-smartos-clojure/), a SmartOS cloud orchestration platform
