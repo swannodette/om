@@ -458,7 +458,8 @@
 (defn react-key
   "Returns the components React key."
   [component]
-  (.. component -props -key))
+  (gobj/getValueByKeys component
+    "_reactInternalInstance" "_currentElement" "key"))
 
 (defn react-type
   "Returns the component type, regardless of whether the component has been
