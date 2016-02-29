@@ -364,6 +364,66 @@
     (fn [_ node]
       (om/add-root! om-598-reconciler OM-598-App node))))
 
+;; ==================
+;; OM-628
+
+(defn om-628-read
+  [{:keys [state query] :as env} k _]
+  (println "query" query)
+  (let [st @state]
+    {:value (om/db->tree query (get st k) st)}))
+
+(defui om-628-Child
+  static om/Ident
+  (ident [this {:keys [id]}]
+    [:item/by-id id])
+  static om/IQueryParams
+  (params [this]
+    {:count 3})
+  static om/IQuery
+  (query [this]
+    '[:id :title (:items {:count ?count})])
+  Object
+  (render [this]
+    (let [{:keys [title items] :as props} (om/props this)]
+      (dom/div nil
+        (dom/h2 nil title)
+        (dom/ul nil
+          (map-indexed #(dom/li #js {:key %1} (name %2)) items))
+        (dom/button #js {:onClick #(om/set-query!
+                                     this {:query [:id :title]} (om/path this))}
+          "Set this query to: [:id :title]")
+        (dom/button #js {:onClick #(println "my query" (om/get-local-query this))}
+          "Get local component query")))))
+
+(def om-628-child (om/factory om-628-Child {:keyfn :id}))
+
+(defui om-628-Parent
+  static om/IQuery
+  (query [this]
+    [{:child1 (om/get-query om-628-Child)}
+     {:child2 (om/get-query om-628-Child)}])
+  Object
+  (render [this]
+    (let [{:keys [child1 child2]} (om/props this)]
+      (dom/div nil
+        (dom/p nil (str "Root query: " (om/get-query this)))
+        (om-628-child child1)
+        (om-628-child child2)))))
+
+(defonce om-628-state
+  {:child1 {:id 1 :title "Child 1" :items ["item 1" "item 2"]}
+   :child2 {:id 2 :title "Child 2" :items ["item 1" "item 2"]}})
+
+(def om-628-reconciler
+  (om/reconciler {:state om-628-state
+                  :parser (om/parser {:read om-628-read})}))
+
+(defcard om-628-card
+  (dom-node
+    (fn [_ node]
+      (om/add-root! om-628-reconciler om-628-Parent node))))
+
 
 (comment
 

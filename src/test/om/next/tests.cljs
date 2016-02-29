@@ -309,6 +309,146 @@
           cps (-> indexes :class-path->query keys)]
       (is (not (nil? (some #{[RootComponent ComponentB]} cps)))))))
 
+(defui Child
+  static om/IQueryParams
+  (params [this]
+    {:count 3})
+  static om/IQuery
+  (query [this]
+    '[:id :title (:items {:count ?count})]))
+
+(defui ToOneRoot
+  static om/IQuery
+  (query [this]
+    [{:tab1 (om/get-query Child)}
+     {:tab2 (om/get-query Child)}]))
+
+(defui ToManyRoot
+  static om/IQuery
+  (query [this]
+    [{:children (om/get-query Child)}]))
+
+(defui UnionChildA
+  static om/IQuery
+  (query [this]
+    [:foo {:nested/join (om/get-query Child)}]))
+
+(defui UnionChildB
+  static om/IQuery
+  (query [this]
+    [:bar]))
+
+(defui UnionRoot
+  static om/IQuery
+  (query [this]
+    [{:union {:foo (om/get-query UnionChildA)
+              :bar (om/get-query UnionChildB)}}]))
+
+(deftest test-indexer-runtime-tree
+  (testing "1->1 joins of the same class in different data paths"
+    (let [r (om/reconciler
+              {:state (atom nil)
+               :parser (om/parser {:read #(do {})})})
+          idxr (get-in r [:config :indexer])
+          ;; simulate mounting
+          _ (p/add-root! r ToOneRoot nil nil)
+          _ (p/index-component! idxr (ToOneRoot. #js {:omcljs$reconciler r
+                                                      :omcljs$path []}))
+          root (-> @idxr :class->components (get ToOneRoot) first)
+          _ (p/index-component! idxr (Child. #js {:omcljs$reconciler r
+                                                  :omcljs$path [:tab1]
+                                                  :omcljs$parent root}))
+          c (first (get-in @idxr [:data-path->components [:tab1]]))]
+      (is (not (nil? c)))
+      ;; will reindex
+      (om/set-query! c {:query [:foo :bar]})
+      (is (= (om/get-query c)
+            [:foo :bar]))
+      (is (= (om/get-query root)
+            '[{:tab1 [:foo :bar]} {:tab2 [:id :title (:items {:count 3})]}]))))
+  (testing "children in 1->many joins changing queries should not be reflected at the root"
+    (let [r (om/reconciler
+              {:state (atom nil)
+               :parser (om/parser {:read #(do {})})})
+          idxr (get-in r [:config :indexer])
+          _ (p/add-root! r ToManyRoot nil nil)
+          _ (p/index-component! idxr (ToManyRoot. #js {:omcljs$reconciler r
+                                                       :omcljs$path []}))
+          root (-> @idxr :class->components (get ToManyRoot) first)
+          children (take 3 (repeatedly
+                             #(Child. #js {:omcljs$reconciler r
+                                           :omcljs$path [:children]
+                                           :omcljs$parent root})))
+          _ (run! #(p/index-component! idxr %) children)
+          c (first (get-in @idxr [:data-path->components [:children]]))]
+      (is (not (nil? c)))
+      (om/set-query! c {:query [:foo :bar]})
+      (is (= (om/get-query c)
+            [:foo :bar]))
+      (is (= (om/get-query root)
+            '[{:children [:id :title (:items {:count 3})]}]))))
+  (testing "1->1 union queries can be changed from below"
+    (let [r (om/reconciler
+              {:state (atom nil)
+               :parser (om/parser {:read #(do {})})})
+          idxr (get-in r [:config :indexer])
+          _ (p/add-root! r UnionRoot nil nil)
+          _ (p/index-component! idxr (UnionRoot. #js {:omcljs$reconciler r
+                                                      :omcljs$path []}))
+          root (-> @idxr :class->components (get UnionRoot) first)
+          child-b (UnionChildB. #js {:omcljs$reconciler r
+                                     :omcljs$path [:union]
+                                     :omcljs$parent root})
+          _ (p/index-component! idxr child-b)
+          c (first (get-in @idxr [:data-path->components [:union]]))]
+      (is (not (nil? c)))
+      (om/set-query! c {:query [:baz :qux]})
+      (is (= (om/get-query c)
+            [:baz :qux]))
+      (is (= (om/get-query root)
+            [{:union {:foo (om/get-query UnionChildA)
+                      :bar [:baz :qux]}}]))
+      ;; changing nested joins in the union
+      (let [child-a (UnionChildA. #js {:omcljs$reconciler r
+                                       :omcljs$path [:union]
+                                       :omcljs$parent root})
+            child-a-child (Child. #js {:omcljs$reconciler r
+                                       :omcljs$path [:union :nested/join]
+                                       :omcljs$parent child-a})
+            _ (p/drop-component! idxr c)
+            _ (p/index-component! idxr child-a)
+            _ (p/index-component! idxr child-a-child)
+            c' (first (get-in @idxr [:data-path->components [:union]]))
+            c-child' (first (get-in @idxr [:data-path->components [:union :nested/join]]))]
+        (is (= c' child-a))
+        (is (not (nil? c-child')))
+        (om/set-query! c-child' {:query [:other/key]})
+        (is (= (om/get-query root)
+              [{:union {:foo [:foo {:nested/join [:other/key]}]
+                        :bar [:baz :qux]}}])))))
+  (testing "query changes in 1->many unions should not be reflected at the root"
+    (let [r (om/reconciler
+              {:state (atom nil)
+               :parser (om/parser {:read #(do {})})})
+          idxr (get-in r [:config :indexer])
+          _ (p/add-root! r UnionRoot nil nil)
+          _ (p/index-component! idxr (UnionRoot. #js {:omcljs$reconciler r
+                                                      :omcljs$path []}))
+          root (-> @idxr :class->components (get UnionRoot) first)
+          children (take 3 (repeatedly
+                             #(UnionChildB. #js {:omcljs$reconciler r
+                                                 :omcljs$path [:union]
+                                                 :omcljs$parent root})))
+          _ (run! #(p/index-component! idxr %) children)
+          c (first (get-in @idxr [:data-path->components [:union]]))]
+      (is (not (nil? c)))
+      (om/set-query! c {:query [:baz :qux]})
+      (is (= (om/get-query c)
+            [:baz :qux]))
+      (is (= (om/get-query root)
+            [{:union {:foo (om/get-query UnionChildA)
+                      :bar (om/get-query UnionChildB)}}])))))
+
 ;; -----------------------------------------------------------------------------
 ;; Parser
 
