@@ -1,4 +1,5 @@
-(ns om.util)
+(ns om.util
+  (:refer-clojure :exclude [ident?]))
 
 (defn force-children [x]
   (cond->> x
