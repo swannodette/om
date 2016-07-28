@@ -20,6 +20,7 @@
     button
     canvas
     caption
+    center
     cite
     code
     col
