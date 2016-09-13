@@ -955,6 +955,40 @@
    (transact* r nil ref tx)))
 
 ;; =============================================================================
+;; Touch
+
+(defn touch* [r c tx]
+  (let [cfg  (:config r)
+        env  (merge
+               (to-env cfg)
+               {:reconciler r :component c})
+        _    (when-let [l (:logger cfg)]
+               (glog/info l (str "touched '" tx)))
+        snds (gather-sends env tx (:remotes cfg))]
+    (p/queue! r [c])
+    (schedule-render! r)
+    (when-not (empty? snds)
+      (p/queue-sends! r snds)
+      (schedule-sends! r))))
+
+(defn touch!
+  "Issue a re-render on component."
+  [c]
+  {:pre [(component? c)]}
+  (do
+    (assert (iquery? c)
+            (str "transact! invoked by component " c
+                 " that does not implement IQuery"))
+    (loop [p (parent c) c c tx (full-query c)]
+      (if (nil? p)
+        (let [r (get-reconciler c)]
+          (touch* r c tx))
+        (let [[x' tx] (if (implements? ITxIntercept p)
+                        [p (tx-intercept p tx)]
+                        [c tx])]
+          (recur (parent p) x' tx))))))
+
+;; =============================================================================
 ;; Parser
 
 (defn parser
