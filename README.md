@@ -1,5 +1,7 @@
 # Om
 
+[![CircleCI](https://circleci.com/gh/omcljs/om/tree/master.svg?style=svg)](https://circleci.com/gh/omcljs/om/tree/master)
+
 A [ClojureScript](http://github.com/clojure/clojurescript) interface
 to [Facebook's React](http://facebook.github.io/react/).
 
