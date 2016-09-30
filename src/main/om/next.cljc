@@ -7,9 +7,9 @@
                        [cljs.util]]
                 :cljs [[goog.string :as gstring]
                        [goog.object :as gobj]
-                       [goog.log :as glog]
-                       [om.next.cache :as c]])
+                       [goog.log :as glog]])
             [om.next.impl.parser :as parser]
+            [om.next.cache :as c]
             [om.tempid :as tempid]
             [om.transit :as transit]
             [om.util :as util]
@@ -1281,7 +1281,8 @@
          st   (:state cfg)
          id   #?(:clj  (java.util.UUID/randomUUID)
                  :cljs (random-uuid))]
-     #?(:cljs (.add (:history cfg) id @st))
+     (when-let [h (:history cfg)]
+       (c/add h id @st))
      #?(:cljs
         (when-let [l (:logger cfg)]
           (glog/info l
@@ -1503,12 +1504,13 @@
                  {:ref ref}))
         id   #?(:clj  (java.util.UUID/randomUUID)
                 :cljs (random-uuid))
+        _ (when-let [h (:history cfg)]
+            (c/add h id @(:state cfg)))
         #?@(:cljs
-            [_    (.add (:history cfg) id @(:state cfg))
-             _    (when-let [l (:logger cfg)]
-                    (glog/info l
-                      (str (when ref (str (pr-str ref) " "))
-                        "transacted '" tx ", " (pr-str id))))])
+            [_ (when-let [l (:logger cfg)]
+                 (glog/info l
+                            (str (when ref (str (pr-str ref) " "))
+                                 "transacted '" tx ", " (pr-str id))))])
         v    ((:parser cfg) env tx)
         snds (gather-sends env tx (:remotes cfg))
         xs   (cond-> []
@@ -2725,7 +2727,7 @@
          merge-ident  default-merge-ident
          prune-tree   default-extract-errors
          optimize     (fn [cs] (sort-by depth cs))
-         history      100
+         history      #?(:clj nil :cljs 100)
          root-render  #?(:clj  (fn [c target] c)
                          :cljs #(js/ReactDOM.render %1 %2))
          root-unmount #?(:clj   (fn [x])
@@ -2751,7 +2753,7 @@
                   :prune-tree prune-tree
                   :optimize optimize
                   :normalize (or (not norm?) normalize)
-                  :history #?(:clj  []
+                  :history #?(:clj  (when history (c/cache history))
                               :cljs (c/cache history))
                   :root-render root-render :root-unmount root-unmount
                   :logger logger :pathopt pathopt
@@ -2798,7 +2800,7 @@
    may be configured by the :history option when constructing the reconciler."
   [reconciler uuid]
   {:pre [(reconciler? reconciler)]}
-  (.get (-> reconciler :config :history) uuid))
+  (c/get (-> reconciler :config :history) uuid))
 
 (defn tempid
   "Return a temporary id."
