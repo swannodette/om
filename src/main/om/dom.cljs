@@ -1,5 +1,5 @@
 (ns om.dom
-  (:refer-clojure :exclude [map mask meta time select])
+  (:refer-clojure :exclude [map mask meta time select use])
   (:require-macros [om.dom :as dom])
   (:require [cljsjs.react]
             [cljsjs.react.dom]
