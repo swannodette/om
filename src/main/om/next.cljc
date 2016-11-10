@@ -2532,7 +2532,10 @@
                          (when-let [update-path (path c)]
                            (loop [p (parent c)]
                              (when (some? p)
-                               (let [update-path' (subvec update-path (count (path p)))]
+                               (let [path-len     (count (path p))
+                                     update-path' (if (> (count update-path) path-len)
+                                                    (subvec update-path path-len)
+                                                    update-path)]
                                  (update-props! p (assoc-in (props p) update-path' next-raw-props))
                                  (merge-pending-props! p)
                                  (recur (parent p)))))))))))))))))
