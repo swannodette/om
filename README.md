@@ -106,7 +106,6 @@ examples:
 * [CircleCI](http://www.circleci.com/), source [here](https://github.com/circleci/frontend)
 * [Precursor](https://precursorapp.com)
 * [Assistant](https://github.com/29decibel/assistant)
-* [Fitsme](http://fitsmeapp.com)
 * [Goya](http://jackschaedler.github.io/goya/), pixel editor with
   undo/redo and visual history
 * [AppShare](https://github.com/zubairq/AppShare), a Clojure web framework
