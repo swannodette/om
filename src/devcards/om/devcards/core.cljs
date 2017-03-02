@@ -7,6 +7,7 @@
             [om.devcards.bugs]
             [om.devcards.autocomplete]
             [om.devcards.shared-fn-test]
+            [om.devcards.process-roots-tests]
             [om.next :as om :refer-macros [defui]]
             [om.dom :as dom]))
 
