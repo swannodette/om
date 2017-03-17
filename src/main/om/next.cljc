@@ -1659,6 +1659,18 @@
           (-> qs' first zip/node) (assoc ret cp qs')))
       ret)))
 
+(defn- set-tree-path-query
+  [query-tree c query]
+  (-> query-tree
+    (update (react-key c) merge {})
+    (update (react-key c) assoc :parent (when-let [parent (parent c)] (react-key parent)) :query query)))
+
+(defn- get-tree-path-query
+  [query-tree c]
+  (for [branch (get query-tree (react-key c))
+        :while (not (nil? (:parent branch)))]
+    (:query branch)))
+
 (defrecord Indexer [indexes extfs]
   #?(:clj  clojure.lang.IDeref
      :cljs IDeref)
@@ -1808,11 +1820,11 @@
                               (str "component " (.. c -constructor -displayName)
                                 "'s ident (" ident ") has a `nil` second element."
                                 " This warning can be safely ignored if that is intended."))
-                            ident))]
-          (if-not (nil? ident)
-            (cond-> indexes
-              ident (update-in [:ref->components ident] (fnil conj #{}) c))
-            indexes)))))
+                            ident))
+              query (first ((:get-tree-path-query extfs) (:tree-path->query indexes) c))]
+          (cond-> indexes
+              (not (nil? ident)) (update-in [:ref->components ident] (fnil conj #{}) c)
+              (nil? query) (update-in [:tree-path->query] (:set-tree-path-query extfs) c (when (iquery? c) (get-component-query c))))))))
 
   (drop-component! [_ c]
     (swap! indexes
@@ -1826,11 +1838,11 @@
                         disj c)
               ident     (when #?(:clj  (satisfies? Ident c)
                                  :cljs (implements? Ident c))
-                        (ident c (props c)))]
-          (if-not (nil? ident)
-            (cond-> indexes
-              ident (update-in [:ref->components ident] disj c))
-            indexes)))))
+                        (ident c (props c)))
+              query (first ((:get-tree-path-query extfs) (:tree-path->query indexes) c))]
+          (cond-> indexes
+            (not (nil? ident)) (update-in [:ref->components ident] disj c)
+            (not (nil? query)) (update-in [:tree-path->query] dissoc (react-key c)))))))
 
   (key->components [_ k]
     (let [indexes @indexes]
@@ -1849,13 +1861,16 @@
     (indexer
       {:index-component (fn [indexes component] indexes)
        :drop-component  (fn [indexes component] indexes)
-       :ref->components (fn [indexes ref] nil)}))
+       :ref->components (fn [indexes ref] nil)
+       :set-tree-path-query set-tree-path-query
+       :get-tree-path-query get-tree-path-query}))
   ([extfs]
    (Indexer.
      (atom
        {:class->components {}
         :data-path->components {}
-        :ref->components   {}})
+        :ref->components   {}
+        :tree-path->query {}})
      extfs)))
 
 (defn get-indexer

@@ -2504,7 +2504,9 @@
                                          {:index-component (fn [indexes component] indexes)
                                           :drop-component  (fn [indexes component] indexes)
                                           :ref->components (fn [{:keys [class->components]} ref]
-                                                             (get class->components Comp))})})
+                                                             (get class->components Comp))
+                                          :set-tree-path-query om/set-tree-path-query
+                                          :get-tree-path-query om/get-tree-path-query})})
            ;; the important thing to note are the `:t`s. In this example we simulate
            ;; a stale Root (< (t root) (t reconciler))
            root (Root. #js {:omcljs$reconciler r
@@ -2535,7 +2537,9 @@
                                          {:index-component (fn [indexes component] indexes)
                                           :drop-component  (fn [indexes component] indexes)
                                           :ref->components (fn [{:keys [class->components]} ref]
-                                                             (get class->components Comp))})})
+                                                             (get class->components Comp))
+                                          :set-tree-path-query om/set-tree-path-query
+                                          :get-tree-path-query om/get-tree-path-query})})
            ;; In this case, we simulate a state update at Comp, while something
            ;; in Comp's subtree also has `transact!`ed, thus (< (t c) (t reconciler))
            root (Root. #js {:omcljs$reconciler r
