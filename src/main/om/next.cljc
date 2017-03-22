@@ -688,7 +688,7 @@
                  :cljs (satisfies? IMeta ret)))
       (with-meta qm))))
 
-(declare component? get-reconciler props class-path get-indexer path react-type)
+(declare component? get-reconciler props class-path get-indexer path react-key react-type)
 
 (defn- component->query-data [component]
   (some-> (get-reconciler component)
@@ -760,13 +760,27 @@
   (when #?(:clj  (iquery? x)
            :cljs (implements? IQuery x))
     (if (component? x)
-      (if-let [query-data (component->query-data x)]
-        (get-component-query x query-data)
-        (let [cp (class-path x)
-              r (get-reconciler x)
-              data-path (into [] (remove number?) (path x))
-              class-path-query-data (get (:class-path->query @(get-indexer r)) cp)]
-          (get-indexed-query x class-path-query-data data-path)))
+      (let [query-data (component->query-data x)
+            dynamic (-> x get-reconciler :config :dynamic)
+            _ (do
+                #?@(:cljs [;;(.log js/console "called get-query config dynamic?: " (pr-str dynamic))
+                           (.log js/console "called get-query tree-path->query with react-key: " (pr-str (react-key x)))
+                           ;;(.log js/console "called get-query nil? query-data: " (pr-str (nil? query-data)))
+                           ;;(.log js/console "called get-query tree-path->query: " (pr-str (-> x get-reconciler get-indexer deref :tree-path->query)))
+                            ]))
+            instance-query-data ((-> x get-reconciler get-indexer :extfs :get-tree-path-query) (-> x get-reconciler get-indexer deref :tree-path->query) x)
+            _ (do
+                #?@(:cljs [(.log js/console "called get-query instance-query-data: " (pr-str instance-query-data))]))]
+        ;; If its not in tree-path->query
+        ;; we need to call (get-component-query)
+        (cond
+          (not (nil? query-data)) (get-component-query x query-data)
+          (not (nil? instance-query-data)) (get-component-query x (update-in instance-query-data [:query] with-meta (dissoc (-> instance-query-data :query meta) :component)))
+          :else (let [cp (class-path x)
+                      r (get-reconciler x)
+                      data-path (into [] (remove number?) (path x))
+                      class-path-query-data (get (:class-path->query @(get-indexer r)) cp)]
+                  (get-indexed-query x class-path-query-data data-path))))
       (get-class-or-instance-query x))))
 
 (defn tag [x class]
@@ -1293,8 +1307,10 @@
               (when query "changed query '" query ", ")
               (when params "changed params " params " ")
               (pr-str id)))))
-     (swap! st update-in [:om.next/queries (or c root)] merge
-       (merge (when query {:query query}) (when params {:params params})))
+     (when c
+       (swap! (-> cfg :indexer :indexes) update :tree-path->query (-> cfg :indexer :extfs :set-tree-path-query) c (merge (when query {:query query}) (when params {:params params}))))
+     ;;(swap! st update-in [:om.next/queries (or c root)] merge
+     ;;  (merge (when query {:query query}) (when params {:params params})))
      (when (and (not (nil? c)) (nil? reads))
        (p/queue! r [c]))
      (when-not (nil? reads)
@@ -1659,17 +1675,83 @@
           (-> qs' first zip/node) (assoc ret cp qs')))
       ret)))
 
+(defn sibling-refs?
+  [a b]
+  (let [sa (butlast (clojure.string/split a #" "))
+        sb (butlast (clojure.string/split b #" "))]
+    (= (if (empty? sa) a (clojure.string/join " " sa))
+       (if (empty? sb) b (clojure.string/join " " sb)))))
+
+(defn tree-path-query->refs
+  [query rf]
+  (loop [result []
+         q query]
+    (cond
+      (empty? q)
+      result
+      (and (map? (first q))
+           (string? (-> q first vals first))
+           (= (-> q first vals first) rf))
+      (vec (concat result q))
+      (and (map? (first q))
+           (string? (-> q first vals first))
+           (sibling-refs? (-> q first vals first) rf))
+      (vec (concat result [{(ffirst (first q)) [(-> q first vals first) rf]}] (rest q)))
+      (and (map? (first q))
+           (vector? (-> q first vals first))
+           (every? string? (-> q first vals first))
+           (some #(= % rf) (-> q first vals first)))
+      (vec (concat result q))
+      (and (map? (first q))
+           (vector? (-> q first vals first))
+           (string? (-> q first vals first last))
+           (sibling-refs? (-> q first vals first last) rf))
+      (vec (concat result [{(ffirst (first q)) (conj (-> q first vals first) rf)}] (rest q)))
+      (and (map? (first q))
+               (not (string? (-> q first vals first))))
+        (vec (concat result [{(ffirst (first q)) rf}] (rest q)))
+      :else (recur (conj result (first q))
+                   (rest q)))))
+
+;; The root query is special as it starts one level up.
+(defn tree-path-root-query->refs
+  [root-query rf]
+  [{(first (ffirst root-query)) (tree-path-query->refs (-> root-query first vals first) rf)}])
+
+;; Need to be dynamic from the root, I can't think of a way to start part way up the tree atm
 (defn- set-tree-path-query
-  [query-tree c query]
-  (-> query-tree
-    (update (react-key c) merge {})
-    (update (react-key c) assoc :parent (when-let [parent (parent c)] (react-key parent)) :query query)))
+  [query-tree c query&params]
+  (if-let [parent (parent c)]
+    (if (or (nil? (react-key c))
+            (nil? (react-key parent)))
+      query-tree
+      (if (= (depth parent) 0)
+        (-> query-tree
+            (update (react-key c) merge query&params)
+            (update (react-key parent) merge {})
+            (update-in [(react-key parent) :query] tree-path-root-query->refs (react-key c)))
+        (-> query-tree
+          (update (react-key c) merge (assoc query&params :parent (react-key parent)))
+          (update (react-key parent) merge {})
+          (update-in [(react-key parent) :query] tree-path-query->refs (react-key c)))))
+    (if (nil? (react-key c))
+      query-tree
+      (-> query-tree
+          (update (react-key c) merge query&params)))))
+
+(defn- travel-tree
+  [query-tree query]
+  (cond
+    (string? query) (travel-tree query-tree (-> (get query-tree query) :query))
+    (map? query) {(ffirst query) (travel-tree query-tree (-> query vals first))}
+    (vector? query) (vec (for [branch query]
+                           (travel-tree query-tree branch)))
+    :else query))
 
 (defn- get-tree-path-query
   [query-tree c]
-  (for [branch (get query-tree (react-key c))
-        :while (not (nil? (:parent branch)))]
-    (:query branch)))
+  (when (contains? query-tree (react-key c))
+    (update (get query-tree (react-key c)) :query (partial travel-tree query-tree))))
 
 (defrecord Indexer [indexes extfs]
   #?(:clj  clojure.lang.IDeref
@@ -1799,6 +1881,8 @@
            :class-path->query @class-path->query}))))
 
   (index-component! [_ c]
+    (do
+      #?@(:cljs [(.log js/console "called index component: " (pr-str (react-key c)))]))
     (swap! indexes
       (fn [indexes]
         (let [indexes (update-in ((:index-component extfs) indexes c)
@@ -1824,7 +1908,7 @@
               query (first ((:get-tree-path-query extfs) (:tree-path->query indexes) c))]
           (cond-> indexes
               (not (nil? ident)) (update-in [:ref->components ident] (fnil conj #{}) c)
-              (nil? query) (update-in [:tree-path->query] (:set-tree-path-query extfs) c (when (iquery? c) (get-component-query c))))))))
+              (nil? query) (update :tree-path->query (:set-tree-path-query extfs) c (merge (when (iquery? c) {:query (get-component-query c)}))))))))
 
   (drop-component! [_ c]
     (swap! indexes
@@ -1921,28 +2005,36 @@
        (full-query component (get-query component)))))
   ([component query]
    (when (iquery? component)
-     (let [xf    (cond->> (remove number?)
-                   (recursive-class-path? component) (comp (distinct)))
-           path' (into [] xf (path component))
-           cp    (class-path component)
-           qs    (get-in @(-> component get-reconciler get-indexer)
-                   [:class-path->query cp])]
-       (if-not (empty? qs)
-         ;; handle case where child appears multiple times at same class-path
-         ;; but with different queries
-         (let [q (->> qs
-                   (filter #(= path'
-                               (mapv get-dispatch-key
-                                 (-> % zip/root (focus->path path')))))
-                   first)]
-           (if-not (nil? q)
-             (replace q query)
-             (throw
-               (ex-info (str "No queries exist at the intersection of component path " cp " and data path " path')
-                 {:type :om.next/no-queries}))))
-         (throw
-           (ex-info (str "No queries exist for component path " cp)
-             {:type :om.next/no-queries})))))))
+     (if (-> component get-reconciler :config :dynamic)
+       (do
+         #?@(:cljs [(.log js/console "full query dynamic")])
+         ;; maybe I just need to do the reverse operation of tree-path->ref (ref -> tree-path)
+       ;;query
+         ;;{:query [{:app/root [:db/id {:app.root/trunk [:db/id :app.root.trunk/text-one {:app.root.trunk/branches [:db/id :app.root.trunk.branch/text :app.root.trunk.branch/leaves {:autumn '[*]}]}]} {:app.root/another [:db/id :app.root.another/text]}]}]}
+         [{:app/root [:db/id {:app.root/trunk [:db/id :app.root.trunk/text-one {:app.root.trunk/branches [[:db/id :app.root.trunk.branch/text :app.root.trunk.branch/leaves {:autumn '[*]}] [:db/id :app.root.trunk.branch/text :app.root.trunk.branch/leaves]]}]} {:app.root/another [:db/id :app.root.another/text]}]}]
+         )
+       (let [xf    (cond->> (remove number?)
+                     (recursive-class-path? component) (comp (distinct)))
+             path' (into [] xf (path component))
+             cp    (class-path component)
+             qs    (get-in @(-> component get-reconciler get-indexer)
+                     [:class-path->query cp])]
+         (if-not (empty? qs)
+           ;; handle case where child appears multiple times at same class-path
+           ;; but with different queries
+           (let [q (->> qs
+                     (filter #(= path'
+                                 (mapv get-dispatch-key
+                                   (-> % zip/root (focus->path path')))))
+                     first)]
+             (if-not (nil? q)
+               (replace q query)
+               (throw
+                 (ex-info (str "No queries exist at the intersection of component path " cp " and data path " path')
+                   {:type :om.next/no-queries}))))
+           (throw
+             (ex-info (str "No queries exist for component path " cp)
+               {:type :om.next/no-queries}))))))))
 
 (defn- normalize* [query data refs union-seen]
   (cond
@@ -2711,6 +2803,7 @@
      :parser       - the parser to be used
 
    Optional parameters:
+     :dynamic      - lookup queries at runtime
      :shared       - a map of global shared properties for the component tree.
      :shared-fn    - a function to compute global shared properties from the root props.
                      the result is merged with :shared.
@@ -2749,7 +2842,8 @@
            pathopt
            migrate id-key
            instrument tx-listen
-           easy-reads]
+           easy-reads
+           dynamic]
     :or {ui->props    default-ui->props
          indexer      om.next/indexer
          merge-sends  #(merge-with into %1 %2)
@@ -2766,7 +2860,8 @@
                          :cljs #(js/ReactDOM.unmountComponentAtNode %))
          pathopt      false
          migrate      default-migrate
-         easy-reads   true}
+         easy-reads   true
+         dynamic false}
     :as config}]
   {:pre [(map? config)]}
   (let [idxr   (indexer)
@@ -2791,7 +2886,8 @@
                   :logger logger :pathopt pathopt
                   :migrate migrate :id-key id-key
                   :instrument instrument :tx-listen tx-listen
-                  :easy-reads easy-reads}
+                  :easy-reads easy-reads
+                  :dynamic dynamic}
                  (atom {:queue []
                         :remote-queue {}
                         :queued false :queued-sends {}
