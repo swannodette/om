@@ -766,7 +766,7 @@
                 #?@(:cljs [;;(.log js/console "called get-query config dynamic?: " (pr-str dynamic))
                            (.log js/console "called get-query tree-path->query with react-key: " (pr-str (react-key x)))
                            ;;(.log js/console "called get-query nil? query-data: " (pr-str (nil? query-data)))
-                           ;;(.log js/console "called get-query tree-path->query: " (pr-str (-> x get-reconciler get-indexer deref :tree-path->query)))
+                           (.log js/console "called get-query tree-path->query: " (pr-str (-> x get-reconciler get-indexer deref :tree-path->query)))
                             ]))
             instance-query-data ((-> x get-reconciler get-indexer :extfs :get-tree-path-query) (-> x get-reconciler get-indexer deref :tree-path->query) x)
             _ (do
@@ -1309,8 +1309,8 @@
               (pr-str id)))))
      (when c
        (swap! (-> cfg :indexer :indexes) update :tree-path->query (-> cfg :indexer :extfs :set-tree-path-query) c (merge (when query {:query query}) (when params {:params params}))))
-     ;;(swap! st update-in [:om.next/queries (or c root)] merge
-     ;;  (merge (when query {:query query}) (when params {:params params})))
+     (swap! st update-in [:om.next/queries (or c root)] merge
+       (merge (when query {:query query}) (when params {:params params})))
      (when (and (not (nil? c)) (nil? reads))
        (p/queue! r [c]))
      (when-not (nil? reads)
