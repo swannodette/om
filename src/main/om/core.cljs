@@ -994,6 +994,9 @@
 
      :key        - a keyword that should be used to look up the key used by
                    React itself when rendering sequential things.
+     :key-fn     - a function that should be used to look up the key used by
+                   React itself when rendering sequential things.
+
      :react-key  - an explicit react key
      :fn         - a function to apply to the data before invoking f.
      :init-state - a map of initial state to pass to the component.
@@ -1023,7 +1026,9 @@
 (defn build-all
   "Build a sequence of components. f is the component constructor
    function, xs a sequence of values, and m a map of options the
-   same as provided to om.core/build."
+   same as provided to om.core/build.
+   To avoid warnings from React, please provide either :key or :key-fn
+   in the options map"
   ([f xs] (build-all f xs nil))
   ([f xs m]
    {:pre [(ifn? f) (or (nil? m) (map? m))]}
