@@ -2489,7 +2489,7 @@
           q (if-not (nil? remote)
               (get-in st [:remote-queue remote])
               (:queue st))]
-      (swap! state update-in [:queued] not)
+      (swap! state assoc :queued false)
       (if (not (nil? remote))
         (swap! state assoc-in [:remote-queue remote] [])
         (swap! state assoc :queue []))
