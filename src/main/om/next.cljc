@@ -1314,9 +1314,11 @@
      (swap! st update-in [:om.next/queries (or c root)] merge
        (merge (when query {:query query}) (when params {:params params})))
      (when (and (not (nil? c)) (nil? reads))
-       (p/queue! r [c]))
+       (p/queue! r [c])
+       (schedule-render! r))
      (when-not (nil? reads)
-       (p/queue! r reads))
+       (p/queue! r reads)
+       (schedule-render! r))
      (p/reindex! r)
      (let [rootq (if (not (nil? c))
                    (full-query c)
