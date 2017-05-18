@@ -39,7 +39,7 @@
       (is (= (.ident c {}) [:by-id 42])))
     (testing "allow defui not to implement lifecycle render"
       (is (om/component? c))
-      (is (not (om/renderable? c)))))
+      (is (nil? (.render c)))))
   (is (fn? (-> SimpleComponent meta :component)))
   (testing "`ui` macro"
     (is (= (om/get-query
@@ -853,3 +853,39 @@
                   om/full-query (constantly [{:foo [:bar]}])]
       (is (= (om/transform-reads r '[(do/it!) (do/it!) :foo :bar])
              '[(do/it!) (do/it!) {:foo [:bar]}])))))
+
+(deftest test-remote-send-no-return
+  (let [r (om/reconciler {:state (atom {:foo "Hello, "})
+                          :parser (om/parser
+                                    {:read (fn [{:keys [state target]} k _]
+                                             (merge {:value (get @state k)}
+                                               (when (= k :bar)
+                                                 {:remote true})))})
+                          :send (fn [{:keys [remote]} cb]
+                                  ;; simulate calling the server parser
+                                  (cb {:bar " world."}))})
+       RemoteRoot (ui
+                    static om/IQuery
+                    (query [this]
+                      [:foo :bar])
+                    Object
+                    (render [this]
+                      (let [{:keys [foo bar] :as props} (om/props this)]
+                        (is (= {:foo "Hello, " :bar " world."} props))
+                        (dom/div nil (str foo bar)))))
+       c (om/add-root! r RemoteRoot nil)]
+    (dom/render-to-str c)
+    (is (some? c))
+    (is (not (empty? @r)))))
+
+(defui NonLifecycleMethodsComponent
+  Object
+  (someMethod [this]
+    "Hello World")
+  (render [this]
+    (.someMethod this)))
+
+(deftest test-defui-non-lifecycle-methods
+  (let [c ((om/factory NonLifecycleMethodsComponent))]
+    (is (= (.someMethod c) "Hello World"))
+    (is (= (.render c) "Hello World"))))

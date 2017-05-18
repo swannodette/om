@@ -1,19 +1,23 @@
 (set-env!
  :source-paths    #{"src/main"}
- :dependencies '[[org.clojure/clojure         "1.9.0-alpha10"  :scope "provided"]
-                 [org.clojure/clojurescript   "1.9.227"        :scope "provided"
-                  :classifier "aot" :exclusions [org.clojure/clojure
-                                                 org.clojure/data.json]]
+ :dependencies '[[org.clojure/clojure         "1.9.0-alpha14"  :scope "provided"]
+                 [org.clojure/clojurescript   "1.9.456"        :scope "provided"
+                  :classifier "aot"
+                  :exclusions [org.clojure/clojure
+                               org.clojure/data.json]]
+                 [org.clojure/clojurescript   "1.9.456"        :scope "provided"
+                  :exclusions [org.clojure/clojure
+                               org.clojure/data.json]]
                  [org.clojure/data.json       "0.2.6"          :scope "provided"
                   :classifier "aot"]
                  [cljsjs/react                "15.3.1-0"]
                  [cljsjs/react-dom            "15.3.1-0"]
-                 [com.cognitect/transit-clj   "0.8.288"]
+                 [com.cognitect/transit-clj   "0.8.297"]
                  [com.cognitect/transit-cljs  "0.8.239"]
 
-                 [org.clojure/core.async      "0.2.385"        :scope "test"
+                 [org.clojure/core.async      "0.2.395"        :scope "test"
                   :exclusions [org.clojure/tools.reader]]
-                 [figwheel-sidecar            "0.5.6"          :scope "test"
+                 [figwheel-sidecar            "0.5.9"          :scope "test"
                   :exclusions [org.clojure/clojurescript
                                org.clojure/tools.reader]]
                  [devcards                    "0.2.1-7"        :scope "test"
@@ -22,14 +26,14 @@
                   :exclusions [org.clojure/clojure
                                org.clojure/tools.nrepl
                                org.clojure/clojurescript]]
-                 [pandeiro/boot-http          "0.7.3"          :scope "test"]
-                 [adzerk/boot-cljs            "1.7.228-1"      :scope "test"]
-                 [adzerk/boot-cljs-repl       "0.3.3"          :scope "test"]
-                 [adzerk/boot-test            "1.1.2"          :scope "test"]
-                 [crisptrutski/boot-cljs-test "0.2.2-SNAPSHOT" :scope "test"]
-                 [doo                         "0.1.7"          :scope "test"
+                 [pandeiro/boot-http          "0.7.6"          :scope "test"]
+                 [adzerk/boot-cljs            "1.7.228-2"      :scope "test"
                   :exclusions [org.clojure/clojurescript]]
-                 [adzerk/boot-reload          "0.4.12"         :scope "test"]
+                 [adzerk/boot-cljs-repl       "0.3.3"          :scope "test"]
+                 [adzerk/boot-test            "1.2.0"          :scope "test"]
+                 [crisptrutski/boot-cljs-test "0.3.0"          :scope "test"
+                  :exclusions [org.clojure/clojurescript]]
+                 [adzerk/boot-reload          "0.5.1"          :scope "test"]
                  [org.clojure/tools.nrepl     "0.2.12"         :scope "test"]
                  [weasel                      "0.7.0"          :scope "test"
                   :exclusions [org.clojure/clojure

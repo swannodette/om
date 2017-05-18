@@ -339,10 +339,7 @@
    (defrecord Element [tag attrs react-key children]
      p/IReactDOMElement
      (-render-to-string [this react-id sb]
-       (render-element! this react-id sb))
-
-     p/IReactChildren
-     (-children [this] children)))
+       (render-element! this react-id sb))))
 
 #?(:clj
    (defrecord Text [s]
@@ -384,7 +381,9 @@
 
 #?(:clj
    (defn- render-component [c]
-     (if (or (nil? c) (satisfies? p/IReactDOMElement c))
+     (if (or (nil? c)
+             (instance? om.next.protocols.IReactDOMElement c)
+             (satisfies? p/IReactDOMElement c))
        c
        (recur (p/-render c)))))
 
@@ -402,24 +401,28 @@
            children (reduce-fn
                       (fn [res c]
                         (let [c' (cond
-                                   (satisfies? p/IReactDOMElement c) c
+                                   (or (instance? om.next.protocols.IReactDOMElement c)
+                                       (satisfies? p/IReactDOMElement c))
+                                   c
 
-                                   (satisfies? p/IReactComponent c)
+                                   (or (instance? om.next.protocols.IReactComponent c)
+                                       (satisfies? p/IReactComponent c))
                                    (let [rendered (if-let [element (render-component c)]
                                                     element
                                                     (react-empty-node))]
                                      (assoc rendered :react-key
-                                       (some-> (p/-props c) :omcljs$reactKey)))
+                                       (some-> (:props c) :omcljs$reactKey)))
 
                                    (or (string? c) (number? c))
                                    (let [c (cond-> c (number? c) str)]
                                      (if (> child-node-count 1)
                                        (react-text-node c)
                                        (text-node c)))
+
                                    (nil? c) nil
-                                   :else (do
-                                           (println "invalid child element:" c (class c))
-                                           (assert false)))]
+
+                                   :else
+                                   (throw (IllegalArgumentException. (str "Invalid child element: ") c)))]
                           (cond-> res
                             (some? c') (conj c'))))
                       [] children)]
@@ -465,6 +468,8 @@
    (defn normalize-styles! [sb styles]
      (letfn [(coerce-value [k v]
                (cond-> v
+                 (string? v)
+                 escape-html
                  (and (number? v)
                    (not (contains? no-suffix k))
                    (pos? v))
@@ -584,10 +589,14 @@
 ;; preserves testability without having to compute checksums
 #?(:clj
    (defn- render-to-str* ^StringBuilder [x]
-     {:pre [(or (satisfies? p/IReactComponent x)
-              (satisfies? p/IReactDOMElement x))]}
+     {:pre [(or (instance? om.next.protocols.IReactComponent x)
+                (instance? om.next.protocols.IReactDOMElement x)
+                (satisfies? p/IReactComponent x)
+                (satisfies? p/IReactDOMElement x))]}
      (let [element (if-let [element (cond-> x
-                                      (satisfies? p/IReactComponent x) render-component)]
+                                      (or (instance? om.next.protocols.IReactComponent x)
+                                          (satisfies? p/IReactComponent x))
+                                      render-component)]
                      element
                      (react-empty-node))
            sb (StringBuilder.)]
@@ -604,11 +613,13 @@
    (defn node
      "Returns the dom node associated with a component's React ref."
      ([component]
-      {:pre [(satisfies? p/IReactComponent component)]}
+      {:pre [(or (instance? om.next.protocols.IReactComponent component)
+                 (satisfies? p/IReactComponent component))]}
       (p/-render component))
      ([component name]
-      {:pre [(satisfies? p/IReactComponent component)]}
-      (some-> @(p/-refs component) (get name) p/-render))))
+      {:pre [(or (instance? om.next.protocols.IReactComponent component)
+                 (satisfies? p/IReactComponent component))]}
+      (some-> @(:refs component) (get name) p/-render))))
 
 #?(:clj
    (defn create-element

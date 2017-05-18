@@ -616,13 +616,15 @@
                                         :cljs (ToManyRoot. #js {:omcljs$reconciler r
                                                                 :omcljs$path []})))
           root (-> @idxr :class->components (get ToManyRoot) first)
-          children (take 3 (repeatedly
-                             #?(:clj  #(Child nil nil #js {:omcljs$reconciler r
-                                                           :omcljs$path [:children]
-                                                           :omcljs$parent root} nil)
-                                :cljs #(Child. #js {:omcljs$reconciler r
-                                                    :omcljs$path [:children]
-                                                    :omcljs$parent root}))))
+          children (map
+                     (fn [idx]
+                       #?(:clj  (Child nil nil #js {:omcljs$reconciler r
+                                                    :omcljs$path [:children idx]
+                                                    :omcljs$parent root} nil)
+                          :cljs (Child. #js {:omcljs$reconciler r
+                                             :omcljs$path [:children idx]
+                                             :omcljs$parent root})))
+                     (range 3))
           _ (run! #(p/index-component! idxr %) children)
           c (first (get-in @idxr [:data-path->components [:children]]))]
       (is (not (nil? c)))
@@ -692,13 +694,15 @@
                                         :cljs (UnionRoot. #js {:omcljs$reconciler r
                                                                :omcljs$path []})))
           root (-> @idxr :class->components (get UnionRoot) first)
-          children (take 3 (repeatedly
-                             #?(:clj #(UnionChildB nil nil #js {:omcljs$reconciler r
-                                                                :omcljs$path [:union]
-                                                                :omcljs$parent root} nil)
-                                :cljs #(UnionChildB. #js {:omcljs$reconciler r
-                                                          :omcljs$path [:union]
-                                                          :omcljs$parent root}))))
+          children (map
+                     (fn [idx]
+                       #?(:clj  (UnionChildB nil nil #js {:omcljs$reconciler r
+                                                          :omcljs$path [:union idx]
+                                                          :omcljs$parent root} nil)
+                          :cljs (UnionChildB. #js {:omcljs$reconciler r
+                                                   :omcljs$path [:union idx]
+                                                   :omcljs$parent root})))
+                     (range 3))
           _ (run! #(p/index-component! idxr %) children)
           c (first (get-in @idxr [:data-path->components [:union]]))]
       (is (not (nil? c)))
@@ -1817,6 +1821,13 @@
               '[{:fake/key [{:real/key ...}]}] :remote))]
     (is (= [{:real/key '...}] (:query m)))))
 
+(deftest test-process-roots-recursive-non-query-root
+  (let [p (om/parser {:read precise-read})
+        m (om/process-roots
+            (p {:state (atom {})}
+              '[{:fake/key [{:real/key ...}]} {:other/key [:other/key {:other/key ...}]}] :remote))]
+    (is (= [{:real/key '...} {:other/key [:other/key {:other/key '...}]}] (:query m)))))
+
 (deftest test-process-roots-keeps-top-rooted-keys
   (let [p (om/parser {:read precise-read :mutate precise-mutate})
         m (om/process-roots
@@ -2541,3 +2552,22 @@
          (is (= (-> @update-atom :componentWillReceiveProps)
                 {:foo 1}))
          (is (true? (:forceUpdate @update-atom)))))))
+
+(deftest test-tx-listen
+  (let [ret (atom [])
+        r (om/reconciler {:state (atom {:app/count 0})
+                          :parser (om/parser {:mutate (fn [{:keys [state]} _ _]
+                                                        {:action (fn []
+                                                                   (swap! state update-in [:app/count] inc))})})
+                          :tx-listen (fn [tx-data tx]
+                                       (swap! ret conj {:tx tx
+                                                        :tx-data tx-data}))})]
+    (om/transact! r '[(app/inc!)])
+    (om/transact! r '[(app/inc!)])
+    (is (= (:app/count @r) 2))
+    (is (= (-> @ret first :tx-data :old-state) {:app/count 0}))
+    (is (= (-> @ret second :tx-data :old-state) {:app/count 1}))
+    (is (= (-> @ret second :tx-data :new-state) {:app/count 2}))
+    (is (= (-> @ret second :tx :tx) '[(app/inc!)]))
+    (is (empty? (-> @ret second :tx :sends)))
+    (is (= (-> @ret second :tx :ret) {'app/inc! {:result {:app/count 2}}}))))

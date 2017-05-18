@@ -20,21 +20,13 @@
   (reconcile! [reconciler] [reconciler remote])
   (send! [reconciler]))
 
-
 #?(:clj
    (defprotocol IReactDOMElement
      (^String -render-to-string [this react-id ^StringBuilder sb] "renders a DOM node to string.")))
 
 #?(:clj
-   (defprotocol IReactChildren
-     (-children [this] "returns the element's children")))
-
-#?(:clj
    (defprotocol IReactComponent
-     (-render [this] "must return a valid ReactDOMElement.")
-     (-props [this])
-     (-refs [this])
-     (-local-state [this])))
+     (-render [this] "must return a valid ReactDOMElement.")))
 
 #?(:clj
    (defprotocol IReactLifecycle

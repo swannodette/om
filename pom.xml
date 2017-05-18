@@ -69,7 +69,7 @@
         <dependency>
             <groupId>org.clojure</groupId>
             <artifactId>clojurescript</artifactId>
-            <version>1.9.293</version>
+            <version>1.9.473</version>
             <classifier>aot</classifier>
             <scope>provided</scope>
             <exclusions>
