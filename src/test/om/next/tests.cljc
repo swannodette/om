@@ -788,7 +788,19 @@
         props []
         (:items props) [:items]
         (-> props :items first) [:items 0]
-        (-> props :items first :current-user) [:items 0 :current-user])))
+        (-> props :items first :current-user) [:items 0 :current-user]))
+    (let [data {:items [{:title "Foo"
+                         :current-user {:name "Alice", :email "alice@gmail.com"}}
+                        {:title "Bar"
+                         :current-user {:name "Alice", :email "alice@gmail.com"}}]}
+          query '[{:items [(:current-user {:a 42}) :title]}]
+          props (parser/path-meta data [] query)]
+      (is (= props data))
+      (are [x path] (= (-> x meta :om-path) path)
+                    props []
+                    (:items props) [:items]
+                    (-> props :items first) [:items 0]
+                    (-> props :items first :current-user) [:items 0 :current-user])))
   (testing "unions"
     (let [x {:dashboard/items
              [{:id 0 :type :dashboard/post :author "Laura Smith"
