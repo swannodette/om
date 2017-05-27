@@ -1,5 +1,5 @@
 (ns om.dom
-  (:refer-clojure :exclude [map meta time])
+  (:refer-clojure :exclude [map meta time use])
   #?(:clj
      (:require [clojure.string :as str]
                [om.next.protocols :as p]
