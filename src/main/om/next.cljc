@@ -9,7 +9,8 @@
                 :cljs [[goog.string :as gstring]
                        [goog.object :as gobj]
                        [goog.log :as glog]
-                       [om.next.cache :as c]])
+                       [om.next.cache :as c]
+                       [cljsjs.react]])
             [om.next.impl.parser :as parser]
             [om.tempid :as tempid]
             [om.transit :as transit]
