@@ -1,0 +1,15 @@
+# http://editorconfig.org
+
+root = true
+
+[*]
+indent_style = space
+end_of_line = lf
+trim_trailing_whitespace = false
+insert_final_newline = false
+
+[*.{clj,cljs,md}]
+indent_size = 2
+
+[*.html]
+indent_size = 4
