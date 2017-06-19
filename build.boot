@@ -1,3 +1,5 @@
+(def +version+ "1.0.0-beta2-SNAPSHOT")
+
 (set-env!
  :source-paths    #{"src/main"}
  :dependencies '[[org.clojure/clojure         "1.9.0-alpha16"  :scope "provided"]
@@ -34,6 +36,7 @@
                  [crisptrutski/boot-cljs-test "0.3.0"          :scope "test"
                   :exclusions [org.clojure/clojurescript]]
                  [adzerk/boot-reload          "0.5.1"          :scope "test"]
+                 [adzerk/bootlaces            "0.1.13"         :scope "test"]
                  [org.clojure/tools.nrepl     "0.2.13"         :scope "test"]
                  [weasel                      "0.7.0"          :scope "test"]]
  :exclusions '[org.clojure/clojure org.clojure/clojurescript])
@@ -43,8 +46,29 @@
  '[adzerk.boot-cljs-repl       :as cr :refer [cljs-repl start-repl]]
  '[adzerk.boot-reload          :refer [reload]]
  '[adzerk.boot-test            :as bt]
+ '[adzerk.bootlaces            :as bootlaces]
  '[crisptrutski.boot-cljs-test :as bct]
  '[pandeiro.boot-http          :refer [serve]])
+
+(bootlaces/bootlaces!
+ +version+
+ ;; If not specified, bootlaces will set
+ ;; resource-paths to `#{"src"}`
+ :dont-modify-paths? true)
+
+(task-options!
+ pom {:project 'org.omcljs/om
+      :version +version+
+      :description "ClojureScript interface to Facebook's React"
+      :url "https://github.com/omcljs/om"
+      :scm {:url "https://github.com/omcljs/om"}
+      :license {"name" "Eclipse Public License"
+                "url"  "http://www.eclipse.org/legal/epl-v10.html"}})
+
+(deftask build-jar []
+  ;; Necessary to expose other namespaces to checkouts
+  (set-env! :resource-paths #{"src/main"})
+  (bootlaces/build-jar))
 
 (deftask devcards []
   (set-env! :source-paths #(conj % "src/devcards")
