@@ -17,6 +17,7 @@
                  [org.clojure/data.json "0.2.6" :scope "provided" :classifier "aot"]
                  [cljsjs/react "15.5.4-0"]
                  [cljsjs/react-dom "15.5.4-0"]
+                 [cljsjs/create-react-class "15.6.0-0"]
                  [com.cognitect/transit-clj "0.8.300"]
                  [com.cognitect/transit-cljs "0.8.239"]
 
