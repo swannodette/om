@@ -1025,6 +1025,58 @@
     (dom/create-element "use" #js {:xlinkHref "#rectangle"
                                    :x "150"})))
 
+(def om-862-state (atom {:count 1}))
+(def om-862-reconciler
+  (om/reconciler {:state   om-862-state
+                  :remotes [:remote]
+                  :parser  (om/parser
+                             {:read   (fn [{:keys [state]} key _]
+                                        {:value (get @state key)})
+                              :mutate (fn [{:keys [state]} key _]
+                                        {:value  {}
+                                         :action #(swap! state
+                                                         update :count inc)
+                                         :remote (= 'count/inc-by-each-remote
+                                                    key)})})
+                  :send    (fn [{:keys [remote]} cb]
+                             (when remote
+                               (let [resp {:count (inc (:count @om-862-state))}
+                                     query [:count]]
+                                 (cb resp query remote))))}))
+
+(defui om-862-Root
+  static om/IQuery
+  (query [this]
+    [:count])
+  Object
+  (render [this]
+    (let [props (om/props this)]
+      (dom/div nil
+               (dom/div
+                 nil
+                 "Clicking first on <Should increment by 2> should not
+                 prevent <Should increment by 1> from scheduling a
+                 reconcile! Try clicking first on <Should increment by 2> and
+                 then try clicking on <Should increment by 1>.")
+               (dom/button
+                 #js {:onClick #(om/transact!
+                                  this '[(count/inc-by-each-remote)])}
+                 "Should increment by 2")
+               (dom/button
+                 #js {:onClick #(om/transact!
+                                  this '[(count/inc-only-client)])}
+                 "Should increment by 1")
+               (dom/div nil (:count props))))))
+; Override om/*raf* to force the race condition that causes the abberant
+; om-862 behavior
+(set! om/*raf* (fn [f]
+                 (println "*raf* override called")
+                 (f)))
+(defcard om-862-card
+  (dom-node
+    (fn [_ node]
+      (om/add-root! om-862-reconciler om-862-Root node))))
+
 (comment
 
   (require '[cljs.pprint :as pprint])

@@ -1314,9 +1314,11 @@
      (swap! st update-in [:om.next/queries (or c root)] merge
        (merge (when query {:query query}) (when params {:params params})))
      (when (and (not (nil? c)) (nil? reads))
-       (p/queue! r [c]))
+       (p/queue! r [c])
+       #?(:cljs (schedule-render! r)))
      (when-not (nil? reads)
-       (p/queue! r reads))
+       (p/queue! r reads)
+       #?(:cljs (schedule-render! r)))
      (p/reindex! r)
      (let [rootq (if (not (nil? c))
                    (full-query c)
@@ -2491,7 +2493,7 @@
           q (if-not (nil? remote)
               (get-in st [:remote-queue remote])
               (:queue st))]
-      (swap! state update-in [:queued] not)
+      (swap! state assoc :queued false)
       (if (not (nil? remote))
         (swap! state assoc-in [:remote-queue remote] [])
         (swap! state assoc :queue []))
