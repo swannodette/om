@@ -900,7 +900,7 @@
    (let [rdesc (or descriptor *descriptor* pure-descriptor)]
      (when (or (nil? (gobj/get f "om$descriptor"))
                (not (identical? rdesc (gobj/get f "om$tag"))))
-       (let [factory (js/React.createFactory (js/React.createClass rdesc))]
+       (let [factory (js/React.createFactory (dom/create-class rdesc))]
          (gobj/set f "om$descriptor" factory)
          (gobj/set f "om$tag" rdesc))))
    (gobj/get f "om$descriptor")))

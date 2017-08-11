@@ -3,14 +3,21 @@
   (:require-macros [om.dom :as dom])
   (:require [cljsjs.react]
             [cljsjs.react.dom]
+            [cljsjs.create-react-class]
             [om.util :as util]
             [goog.object :as gobj]))
+
+(defonce create-class
+  (cond (exists? js/createReactClass) js/createReactClass
+        (exists? js/require) (or (js/require "create-react-class")
+                                 (throw (js/Error. "require('create-react-class') failed")))
+        :else (throw (js/Error. "js/createReactClass is missing"))))
 
 (dom/gen-react-dom-fns)
 
 (defn wrap-form-element [ctor display-name]
   (js/React.createFactory
-    (js/React.createClass
+    (create-class
       #js
       {:getDisplayName
        (fn [] display-name)
