@@ -39,6 +39,7 @@ dependency information:
 ```clojure
 (ns example
   (:require [goog.dom :as gdom]
+            [react-dom :as react-dom]
             [om.dom :as dom]
             [om.next :as om :refer [defui]]))
 
@@ -49,7 +50,7 @@ dependency information:
 
 (def hello (om/factory Hello))
 
-(.render js/ReactDOM (hello) (gdom/getElement "example"))
+(react-dom/render (hello) (gdom/getElement "example"))
 ```
 
 ## Tutorials

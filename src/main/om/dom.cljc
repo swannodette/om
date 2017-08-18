@@ -625,7 +625,7 @@
    (defn create-element
      "Create a DOM element for which there exists no corresponding function.
       Useful to create DOM elements not included in React.DOM. Equivalent
-      to calling `js/React.createElement`"
+      to calling `React.createElement`"
      ([tag]
       (create-element tag nil))
      ([tag opts & children]

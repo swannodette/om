@@ -1,6 +1,7 @@
 (ns examples.mixins.core
   (:require [om.core :as om :include-macros true]
-            [om.dom :as dom :include-macros true])
+            [om.dom :as dom :include-macros true]
+            [react :as react])
   (:import [goog.ui IdGenerator]))
 
 (enable-console-print!)
@@ -13,7 +14,7 @@
 (def MyComponent
   (let [obj (om/specify-state-methods! (clj->js om/pure-methods))]
     (aset obj "mixins" #js [TestMixin])
-    (js/React.createClass obj)))
+    (react/createClass obj)))
 
 (om/root
   (fn [app owner]

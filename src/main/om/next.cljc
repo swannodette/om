@@ -9,7 +9,9 @@
                 :cljs [[goog.string :as gstring]
                        [goog.object :as gobj]
                        [goog.log :as glog]
-                       [om.next.cache :as c]])
+                       [om.next.cache :as c]
+                       [react :as react]
+                       [react-dom :as react-dom]])
             [om.next.impl.parser :as parser]
             [om.tempid :as tempid]
             [om.transit :as transit]
@@ -409,13 +411,13 @@
                                {:doc docstring})))
                     []
                     (this-as this#
-                      (.apply js/React.Component this# (js-arguments))
+                      (.apply react/Component this# (js-arguments))
                       (if-not (nil? (.-initLocalState this#))
                         (set! (.-state this#) (.initLocalState this#))
                         (set! (.-state this#) (cljs.core/js-obj)))
                       this#))
            set-react-proto! `(set! (.-prototype ~name)
-                                 (goog.object/clone js/React.Component.prototype))
+                                 (goog.object/clone react/Component.prototype))
            ctor  (if (-> name meta :once)
                    `(when-not (cljs.core/exists? ~name)
                       ~ctor
@@ -898,7 +900,7 @@
                 t   (if-not (nil? *reconciler*)
                       (p/basis-t *reconciler*)
                       0)]
-            (js/React.createElement class
+            (react/createElement class
               #js {:key               key
                    :ref               ref
                    :omcljs$reactKey   key
@@ -2770,9 +2772,9 @@
          optimize     (fn [cs] (sort-by depth cs))
          history      100
          root-render  #?(:clj  (fn [c target] c)
-                         :cljs #(js/ReactDOM.render %1 %2))
+                         :cljs #(react-dom/render %1 %2))
          root-unmount #?(:clj   (fn [x])
-                         :cljs #(js/ReactDOM.unmountComponentAtNode %))
+                         :cljs #(react-dom/unmountComponentAtNode %))
          pathopt      false
          migrate      default-migrate
          easy-reads   true}

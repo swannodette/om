@@ -1,4 +1,4 @@
-(defproject org.omcljs/om "1.0.0-beta2-SNAPSHOT"
+(defproject org.omcljs/om "1.1.0-SNAPSHOT"
   :description "ClojureScript interface to Facebook's React"
   :url "http://github.com/swannodette/om"
   :license {:name "Eclipse"
@@ -11,12 +11,13 @@
   :source-paths  ["src/main" "src/devcards" "src/test"]
 
   :dependencies [[org.clojure/clojure "1.9.0-alpha17" :scope "provided"]
-                 [org.clojure/clojurescript "1.9.542" :scope "provided" :classifier "aot"
+                 [org.clojure/clojurescript "1.9.908" :scope "provided" :classifier "aot"
                   :exclusions [org.clojure/clojure
                                org.clojure/data.json]]
                  [org.clojure/data.json "0.2.6" :scope "provided" :classifier "aot"]
-                 [cljsjs/react "15.5.4-0"]
-                 [cljsjs/react-dom "15.5.4-0"]
+                 [cljsjs/react "15.6.1-1"]
+                 [cljsjs/react-dom "15.6.1-1"]
+                 [cljsjs/react-dom-server "15.6.1-1"]
                  [com.cognitect/transit-clj "0.8.300"]
                  [com.cognitect/transit-cljs "0.8.239"]
 
@@ -25,7 +26,7 @@
                  [figwheel-sidecar "0.5.10" :scope "test"
                   :exclusions [org.clojure/clojurescript
                                org.clojure/tools.reader]]
-                 [devcards "0.2.3" :scope "test"
+                 [devcards "0.3.0-SNAPSHOT" :scope "test"
                   :exclusions [org.clojure/clojurescript]]]
 
   :plugins [[lein-cljsbuild "1.1.6"]]

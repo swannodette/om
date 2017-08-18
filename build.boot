@@ -1,17 +1,18 @@
 (set-env!
  :source-paths    #{"src/main"}
  :dependencies '[[org.clojure/clojure         "1.9.0-alpha16"  :scope "provided"]
-                 [org.clojure/clojurescript   "1.9.542"        :scope "provided"
+                 [org.clojure/clojurescript   "1.9.908"        :scope "provided"
                   :classifier "aot"
                   :exclusions [org.clojure/clojure
                                org.clojure/data.json]]
-                 [org.clojure/clojurescript   "1.9.542"        :scope "provided"
+                 [org.clojure/clojurescript   "1.9.908"        :scope "provided"
                   :exclusions [org.clojure/clojure
                                org.clojure/data.json]]
                  [org.clojure/data.json       "0.2.6"          :scope "provided"
                   :classifier "aot"]
-                 [cljsjs/react                "15.5.4-0"]
-                 [cljsjs/react-dom            "15.5.4-0"]
+                 [cljsjs/react                "15.6.1-1"]
+                 [cljsjs/react-dom            "15.6.1-1"]
+                 [cljsjs/react-dom-server     "15.6.1-1"]
                  [com.cognitect/transit-clj   "0.8.300"]
                  [com.cognitect/transit-cljs  "0.8.239"]
 
@@ -20,7 +21,7 @@
                  [figwheel-sidecar            "0.5.10"         :scope "test"
                   :exclusions [org.clojure/clojurescript
                                org.clojure/tools.reader]]
-                 [devcards                    "0.2.3"        :scope "test"
+                 [devcards                    "0.3.0-SNAPSHOT" :scope "test"
                   :exclusions [org.clojure/clojurescript]]
                  [com.cemerick/piggieback     "0.2.1"          :scope "test"
                   :exclusions [org.clojure/clojure

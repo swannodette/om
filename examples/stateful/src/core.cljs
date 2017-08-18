@@ -1,6 +1,7 @@
 (ns examples.stateful.core
   (:require [om.core :as om :include-macros true]
-            [om.dom :as dom :include-macros true]))
+            [om.dom :as dom :include-macros true]
+            [react :as react]))
 
 (defn counter-view [data owner]
   (reify
@@ -18,7 +19,7 @@
     (update-in x korks f)))
 
 (def MyClass*
-  (js/React.createClass
+  (react/createClass
     #js
     {:getInitialState
      (fn [] #js {:value {:count 0}})
@@ -34,6 +35,6 @@
                (-transact! [m korks f _]
                  (.setState this #js {:value (applyf m korks f)})))))))}))
 
-(def MyClass (js/React.createFactory MyClass*))
+(def MyClass (react/createFactory MyClass*))
 
-(js/React.renderComponent (MyClass.) (.getElementById js/document "app"))
+(react/renderComponent (MyClass.) (.getElementById js/document "app"))

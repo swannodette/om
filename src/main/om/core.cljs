@@ -1,6 +1,7 @@
 (ns om.core
   (:require-macros om.core)
-  (:require [cljsjs.react]
+  (:require [react :as react]
+            [react-dom :as react-dom]
             [om.dom :as dom :include-macros true]
             [goog.object :as gobj]
             [goog.dom :as gdom]
@@ -900,7 +901,7 @@
    (let [rdesc (or descriptor *descriptor* pure-descriptor)]
      (when (or (nil? (gobj/get f "om$descriptor"))
                (not (identical? rdesc (gobj/get f "om$tag"))))
-       (let [factory (js/React.createFactory (js/React.createClass rdesc))]
+       (let [factory (react/createFactory (react/createClass rdesc))]
          (gobj/set f "om$descriptor" factory)
          (gobj/set f "om$tag" rdesc))))
    (gobj/get f "om$descriptor")))
@@ -1208,7 +1209,7 @@
           (tear-down state watch-key)
           (swap! refresh-set disj rootf)
           (swap! roots dissoc target)
-          (js/ReactDOM.unmountComponentAtNode target)))
+          (react-dom/unmountComponentAtNode target)))
       (rootf))))
 
 (defn detach-root
@@ -1275,10 +1276,10 @@
   "A helper function to get at React DOM refs. Given a owning pure node
   extract the DOM ref specified by name."
   ([owner]
-    (js/ReactDOM.findDOMNode owner))
+    (react-dom/findDOMNode owner))
   ([owner name]
     {:pre [(string? name)]}
-    (some-> (.-refs owner) (aget name) (js/ReactDOM.findDOMNode))))
+    (some-> (.-refs owner) (aget name) (react-dom/findDOMNode))))
 
 (defn get-ref
   "A helper function to get at React refs. Given an owning pure node extract
