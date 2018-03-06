@@ -702,7 +702,10 @@
         tr (map #(bind-query % params))
         ret (cond
               (seq? query) (apply list (into [] tr query))
-              #?@(:clj [(instance? clojure.lang.IMapEntry query) (into [] tr query)])
+              ;; Note we use an empty vector rather than calling empty on
+              ;; query because MapEntries and PersistentVectors are captured by
+              ;; vector? but MapEntry does not empty to [].
+              (vector? query) (into [] tr query)
               (coll? query) (into (empty query) tr query)
               :else (replace-var query params))]
     (cond-> ret
