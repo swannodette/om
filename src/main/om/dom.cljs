@@ -95,3 +95,10 @@
    (js/React.createElement tag opts))
   ([tag opts & children]
    (js/React.createElement tag opts children)))
+
+(defn <>
+  "Create a `React.Fragment` with either child or children using `React.createElement`"
+  ([opts child]
+   (<> opts child nil))
+  ([opts child & more]
+   (apply js/React.createElement js/React.Fragment opts child more)))
