@@ -506,6 +506,14 @@
                               </div>
                             </div>"))))
 
+(deftest render-react-fragment
+  (is (= (str (#'dom/render-to-str*
+               (dom/div #js {}
+                (dom/<> #js {}
+                        (dom/input #js {:value "foo" :id "bar" :type "text"})
+                        (dom/input #js {:value "foo" :id "bar" :type "text"})))))
+         "<div data-reactroot=\"\" data-reactid=\"1\"><input type=\"text\" value=\"foo\" id=\"bar\" data-reactid=\"2\"/><input type=\"text\" value=\"foo\" id=\"bar\" data-reactid=\"3\"/></div>")))
+
 (deftest render-wrapped-attrs
   (is (= (str (#'dom/render-to-str* (dom/input #js {:value "foo" :id "bar" :type "text"})))
          "<input type=\"text\" value=\"foo\" id=\"bar\" data-reactroot=\"\" data-reactid=\"1\"/>"))

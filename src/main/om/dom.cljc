@@ -633,3 +633,16 @@
                 :attrs (dissoc opts :ref :key)
                 :react-key (:key opts)
                 :children children}))))
+
+#?(:clj
+    (defn- is-element?
+      [e]
+      (or
+       (satisfies? p/IReactComponent e)
+       (satisfies? p/IReactDOMElement e))))
+
+#?(:clj
+   (defn <>
+     [& args]
+     (let [children (if (is-element? (first args)) args (rest args))]
+       (vec children))))
