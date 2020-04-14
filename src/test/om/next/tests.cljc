@@ -1071,6 +1071,27 @@
     (is (not (contains? (get t-err 'this/throws) :result)))
     (is (= (get (om/transact! r '[(this/throws) :app/count]) :app/count) 2))))
 
+#?(:cljs
+   (deftest test-cache-clear
+     (let [r (om/reconciler {:state (atom {:app/count 0})
+                             :parser p})
+           h (get-in r [:config :history])]
+       (is (= 0 (count @(.-index h))))
+       (is (= 0 (count (.-arr h))))
+       (om/transact! r '[(app/inc!)])
+       (let [h (get-in r [:config :history])]
+         (is (= 1 (count @(.-index h))))
+         (is (= 1 (count (.-arr h)))))
+       (let [r' (update-in r [:config :history] #(.clear %))
+             h' (get-in r' [:config :history])]
+         (is (= {} @(.-index h')))
+         (is (= 0 (count (.-arr h'))))
+         (is (= [] (js->clj (.-arr h')))))
+       (om/transact! r '[(app/inc!)])
+       (let [h (get-in r [:config :history])]
+         (is (= 1 (count @(.-index h))))
+         (is (= 1 (count (.-arr h))))))))
+
 ;; -----------------------------------------------------------------------------
 ;; Recursive Parsing
 

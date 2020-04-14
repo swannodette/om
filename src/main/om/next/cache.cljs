@@ -10,7 +10,11 @@
         (swap! index assoc id x')))
     (.push arr id))
   (get [this id]
-    (get @index id)))
+    (get @index id))
+  (clear [this]
+    (reset! (.-index this) {})
+    (set! (.-arr this) #js [])
+    this))
 
 (defn cache [size]
   (Cache. #js [] (atom {}) size))
