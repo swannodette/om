@@ -56,7 +56,7 @@
 
 ;; marker protocol, if set component will check equality of current
 ;; and render state
-(defprotocol ICheckState) 
+(defprotocol ICheckState)
 
 ;; =============================================================================
 ;; Om Protocols
@@ -204,7 +204,7 @@
    (-get-state owner))
   ([owner korks]
    {:pre [(component? owner)]}
-   (let [ks (if (sequential? korks) korks [korks])] 
+   (let [ks (if (sequential? korks) korks [korks])]
      (-get-state owner ks))))
 
 (defn get-shared
@@ -315,7 +315,7 @@
                (and (cursor? cursor) (cursor? next-cursor)
                     (not= (-path cursor) (-path next-cursor )))
                true
-               
+
                (not= (-get-state this) (-get-render-state this))
                true
 
@@ -625,7 +625,11 @@
   ISeqable
   (-seq [this]
     (when (pos? (count value))
-      (map (fn [[k v]] [k (-derive this v state (conj path k))]) value)))
+      (map (fn [[k v]]
+             (if (exists? cljs.core/IMapEntry)
+               (MapEntry. k (-derive this v state (conj path k)) nil)
+               [k (-derive this v state (conj path k))]))
+           value)))
   IAssociative
   (-contains-key? [_ k]
     (-contains-key? value k))
@@ -1103,7 +1107,7 @@
    customize f. In addition om.core/root supports the following
    special options:
 
-   :target     - (required) a DOM element. 
+   :target     - (required) a DOM element.
    :shared     - data to be shared by all components, see om.core/get-shared
    :tx-listen  - a function that will listen in in transactions, should
                  take 2 arguments - the first a map containing the
