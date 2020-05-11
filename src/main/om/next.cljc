@@ -2118,6 +2118,9 @@
                            (if-not (nil? joins)
                              (let [join        (first joins)
                                    [key sel]   (util/join-entry join)
+                                   sel         (if (= key recurse-key)
+                                                 query
+                                                 sel)
                                    v           (get ident key)]
                                (recur (next joins)
                                  (assoc ret

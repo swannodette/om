@@ -909,3 +909,16 @@
           (#'om/extract-static-methods '[Multi
                                          (method-a [this arg] :a)
                                          (method-a [this] :b)])))))
+
+(deftest test-om-877-recursive-edge-case
+  (let [query [{:tree [:id
+                       :value
+                       {:children '...}]}]
+        state {:tree {:id 0 :value 42
+                      :children [{:id 1 :value 43
+                                  :children [{:id 2 :value 99
+                                              :children []}]}
+                                 {:id 3 :value 101
+                                  :children []}]}}]
+    (is (= state
+           (om/db->tree query state state)))))
