@@ -284,7 +284,7 @@
 
 #?(:clj
    (defn- proto-assign-impls [env resolve type-sym type [p sigs]]
-     (#'cljs.core/warn-and-update-protocol p type env)
+     (#'cljs.core/update-protocol-var p type env)
      (let [psym      (resolve p)
            pprefix   (#'cljs.core/protocol-prefix psym)
            skip-flag (set (-> type-sym meta :skip-protocol-flag))
